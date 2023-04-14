@@ -4,9 +4,9 @@ const configs = {
   },
   i18n: {
     COMUNISTA: 'Comunista: subs y no subs misma chance',
-    CAPITALISTA: 'Capitalista: Los subs tienen doble chance',
+    CAPITALISTA: 'Capitalista: Los subs tienen x2 chance',
     OLIGARQUIA: 'Oligarquia: una chance mas por cada mes subscripto',
-    NUNCA_BORRAR: 'Una vez que hacen un comentario, participaran toda la sesión',
+    NUNCA_BORRAR: 'Una vez que hacen un comentario, participarán toda la sesión',
     BORRAR_TIEMPO: 'Limiar la lista de participantes cada X drops',
     BORRAR_POR_CADA_DROP: 'Limpiar la lista cada vez que se dropea una clave'
   }

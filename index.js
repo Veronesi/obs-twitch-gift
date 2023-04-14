@@ -149,7 +149,7 @@ const App = {
       {
         type: 'password',
         name: 'pwd',
-        message: 'Por favor, ingresa la el OAuth de Twitch',
+        message: 'Por favor, ingresa el OAuth de Twitch',
       },
     ]);
 
@@ -180,7 +180,7 @@ const App = {
       {
         type: 'list',
         name: 'value',
-        message: 'Utilizar ponderacion?:',
+        message: 'Utilizar ponderación?:',
         choices: [
           configs.i18n.COMUNISTA, configs.i18n.CAPITALISTA, configs.i18n.OLIGARQUIA
         ],
@@ -207,7 +207,7 @@ const App = {
           type: 'number',
           name: 'value',
           default: 2,
-          message: 'Cada cuantos drops se limpiara la lista de participantes?:',
+          message: 'Cada cuantos drops se limpiará la lista de participantes?:',
         },
       ]);
     App.clearAfterXDrops = clearAfterXDrops.value;
