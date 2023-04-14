@@ -64,7 +64,7 @@ const App = {
     const points = App.users.get(App.lastWin);
 
     App.obs.call('SetInputSettings', {
-      'inputName': 'Example Title',
+      'inputName': 'obs-twitch-gift',
       'inputSettings': {
         'text': `Ultimo ganador: "${App.lastWin}" (${App.lastWin ? (points > 1 ? `${points - 1} Meses` : 'Plebe') : ''}) [Drops: ${App.winners.length}/${App.keys.length}]`
       }
@@ -75,7 +75,7 @@ const App = {
   },
   clearOBS: async () => {
     App.obs.call('SetInputSettings', {
-      'inputName': 'Example Title',
+      'inputName': 'obs-twitch-gift',
       'inputSettings': {
         'text': ``
       }
