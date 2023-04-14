@@ -1,4 +1,4 @@
-# Bot for gift drop in Twitch
+# 🎁 Bot to give drops keys on Twitch connected to OBS
 
 # Install and Config 
 1. Install obs-websocket (scroll down to assets) https://github.com/obsproject/obs-websocket/releases
