@@ -1,8 +1,7 @@
-import configs from './configs.js';
 import tmi from 'tmi.js';
 
 const twitch = {
-  connect: async (password) => {
+  connect: async (chanel, username, password) => {
     try {
       console.log('Conect twitch...');
       const client = new tmi.Client({
@@ -12,12 +11,11 @@ const twitch = {
           reconnect: true
         },
         identity: {
-          username: configs.twitch.username,
+          username: username,
           password
         },
-        channels: [configs.twitch.chanel]
+        channels: [chanel]
       });
-      
       await client.connect();
       return client;
     } catch (error) {
