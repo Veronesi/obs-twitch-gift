@@ -8,7 +8,14 @@ const configs = {
     OLIGARQUIA: 'Oligarquia: una chance mas por cada mes subscripto',
     NUNCA_BORRAR: 'Una vez que hacen un comentario, participarán toda la sesión',
     BORRAR_TIEMPO: 'Limiar la lista de participantes cada X drops',
-    BORRAR_POR_CADA_DROP: 'Limpiar la lista cada vez que se dropea una clave'
+    BORRAR_POR_CADA_DROP: 'Limpiar la lista cada vez que se dropea una clave',
+    show: {
+      CANTIDAD_PARTICIPANTES: 'Cantidad de participantes',
+      PROBABILIDAD: 'Probabilidad con la que ganó',
+      NOMBRE_GANADOR: 'Nombre del ganador',
+      KEYS_RESTANTES: 'Cantidad de drops regalados/totales',
+      MESES_SYBSCRIPTO: 'Meses subscripto'
+    }
   }
 }
 

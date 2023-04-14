@@ -19,6 +19,7 @@ const App = {
   countDrops: 0,
   chanel: '',
   username: '',
+  textToShow: [],
   renderWinners: () => {
     return App.keys.reduce((acc, e, i) => acc + `${e}${App.winners[i] ? ` => ${App.winners[i]}` : ''}\n`, '');
   },
@@ -29,7 +30,7 @@ const App = {
     let users = [];
     switch (App.ponderate) {
       case configs.i18n.COMUNISTA:
-        App.users.forEach((v) => {
+        App.users.forEach((_, k) => {
           users = users.concat(k);
         })
         break;
@@ -50,7 +51,8 @@ const App = {
     const rand = App.randomIntFromInterval(0, users.length - 1);
     App.winners.push(users[rand]);
     App.lastWin = users[rand];
-
+    const participants = App.users.size;
+    const probabilty = (100 * (App.users.get(App.lastWin) / users.length)).toFixed(2);
     App.countDrops += 1;
     if (App.clearListSelecction && App.countDrops >= App.clearAfterXDrops) {
       App.countDrops = 0;
@@ -58,15 +60,30 @@ const App = {
     }
 
     fs.writeFileSync('./winners.txt', App.renderWinners());
-    App.writeOBS();
+    App.writeOBS(probabilty, participants);
   },
-  writeOBS: async () => {
+  writeOBS: async (probabilty, participants) => {
     const points = App.users.get(App.lastWin);
+    let text = '';
+    if(App.textToShow.includes(configs.i18n.show.NOMBRE_GANADOR))
+      text += `Ultimo ganador: "${App.lastWin}"`;
+
+    if(App.textToShow.includes(configs.i18n.show.MESES_SYBSCRIPTO))
+      text += ` (${App.lastWin ? (points > 1 ? `${points - 1} Meses` : 'Plebe') : ''})`;
+    
+    if(App.textToShow.includes(configs.i18n.show.KEYS_RESTANTES))
+      text += ` [Drops: ${App.winners.length}/${App.keys.length}]`;
+    
+    if(App.textToShow.includes(configs.i18n.show.PROBABILIDAD))
+      text += ` ${probabilty}%`;
+
+    if(App.textToShow.includes(configs.i18n.show.CANTIDAD_PARTICIPANTES))
+      text += ` Cantidad de participantes: ${participants}`;
 
     App.obs.call('SetInputSettings', {
       'inputName': 'obs-twitch-gift',
       'inputSettings': {
-        'text': `Ultimo ganador: "${App.lastWin}" (${App.lastWin ? (points > 1 ? `${points - 1} Meses` : 'Plebe') : ''}) [Drops: ${App.winners.length}/${App.keys.length}]`
+        'text': text
       }
     }, (err, data) => {
       /* Error message and data. */
@@ -124,6 +141,24 @@ const App = {
 
 
 (async () => {
+  const textToShow = await inquirer
+  .prompt([
+    {
+      type: 'checkbox',
+      name: 'value',
+      message: 'Utilizar ponderación?:',
+      default: ['Nombre del ganador', 'Meses subscripto'],
+      choices: [
+        configs.i18n.show.CANTIDAD_PARTICIPANTES,
+        configs.i18n.show.KEYS_RESTANTES,
+        configs.i18n.show.PROBABILIDAD,
+        configs.i18n.show.NOMBRE_GANADOR,
+        configs.i18n.show.MESES_SYBSCRIPTO,
+      ],
+    },
+  ]);
+  App.textToShow = textToShow.value;
+
   const passwordOBS = await inquirer
     .prompt([
       {
