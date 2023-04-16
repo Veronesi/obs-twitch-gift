@@ -71,3 +71,6 @@ XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
 - `Una vez que hacen un comentario, participarán toda la sesión` users are never deleted
 - `Limiar la lista de participantes cada X drops` delete users after X drops (2 default)
 - `Limpiar la lista cada vez que se dropea una clave` when user get a drop, the users list, will clear
+
+### Credits
+ffanaes@gmail.com (fanaes)
