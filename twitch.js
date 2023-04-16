@@ -8,21 +8,22 @@ const twitch = {
         options: { debug: false },
         connection: {
           secure: true,
-          reconnect: true
+          reconnect: true,
         },
         identity: {
-          username: username,
-          password
+          username,
+          password,
         },
-        channels: [chanel]
+        channels: [chanel],
       });
       await client.connect();
       return client;
     } catch (error) {
       console.error(error);
       process.exit();
+      return null;
     }
-  }
-}
+  },
+};
 
 export default twitch;

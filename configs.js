@@ -1,6 +1,6 @@
 const configs = {
   obs: {
-    host: "ws://127.0.0.1:4455"
+    host: 'ws://127.0.0.1:4455',
   },
   i18n: {
     COMUNISTA: 'Comunista: subs y no subs misma chance',
@@ -14,9 +14,9 @@ const configs = {
       PROBABILIDAD: 'Probabilidad con la que ganó',
       NOMBRE_GANADOR: 'Nombre del ganador',
       KEYS_RESTANTES: 'Cantidad de drops regalados/totales',
-      MESES_SYBSCRIPTO: 'Meses subscripto'
-    }
-  }
-}
+      MESES_SYBSCRIPTO: 'Meses subscripto',
+    },
+  },
+};
 
 export default configs;
