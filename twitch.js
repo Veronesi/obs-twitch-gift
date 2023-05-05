@@ -3,7 +3,7 @@ import tmi from 'tmi.js';
 const twitch = {
   connect: async (chanel, username, password) => {
     try {
-      console.log('Conect twitch...');
+      console.log('Twitch: Conectando...');
       const client = new tmi.Client({
         options: { debug: false },
         connection: {
@@ -17,9 +17,10 @@ const twitch = {
         channels: [chanel],
       });
       await client.connect();
+      console.log('Twitch: ', username, 'conectado exitosamente');
       return client;
     } catch (error) {
-      console.error(error);
+      console.error('Twitch:', error);
       process.exit();
       return null;
     }

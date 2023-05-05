@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "discord": "node discord.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
@@ -24,6 +25,8 @@
   },
   "homepage": "https://github.com/Veronesi/obs-twitch-gift#readme",
   "dependencies": {
+    "discord.js": "^14.10.2",
+    "dotenv": "^16.0.3",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.8.0",
     "inquirer": "^9.1.5",

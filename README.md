@@ -74,3 +74,6 @@ XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
 
 ### Credits
 ffanaes@gmail.com (fanaes)
+
+
+https://twitchapps.com/tmi/

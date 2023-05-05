@@ -1,8 +1,18 @@
 import inquirer from 'inquirer';
 import App from './app.js';
 import configs from './configs.js';
+import { config } from 'dotenv';
+
+config();
 
 (async () => {
+  App.chanel = process.env.TWITCH_CHANNEL;
+  App.username = process.env.TWITCH_USERNAME;
+
+  await App.connectTwitch(process.env.TWITCH_OAUTH);
+  await App.connectOBS(process.env.OBS_PASSWORD);
+  await App.connectDiscord(process.env.DISCORD_TOKEN, process.env.DISCORD_CHANNEL_ID);
+
   const textToShow = await inquirer.prompt([
     {
       type: 'checkbox',
@@ -19,42 +29,6 @@ import configs from './configs.js';
     },
   ]);
   App.textToShow = textToShow.value;
-
-  const passwordOBS = await inquirer.prompt([
-    {
-      type: 'password',
-      name: 'pwd',
-      message: 'Por favor, ingresa la constraseña del servidor del OBS',
-    },
-  ]);
-
-  const username = await inquirer.prompt([
-    {
-      type: 'text',
-      name: 'value',
-      default: 'fanaes',
-      message: 'Nombre de usuario del bot?:',
-    },
-  ]);
-  App.username = username.value;
-
-  const passwordTwitch = await inquirer.prompt([
-    {
-      type: 'password',
-      name: 'pwd',
-      message: 'Por favor, ingresa el OAuth de Twitch',
-    },
-  ]);
-
-  const chanel = await inquirer.prompt([
-    {
-      type: 'text',
-      name: 'value',
-      default: 'BaityBait',
-      message: 'Cual es el nombre de tu canal?:',
-    },
-  ]);
-  App.chanel = chanel.value;
 
   const dropsMinutes = await inquirer.prompt([
     {
@@ -97,5 +71,5 @@ import configs from './configs.js';
     App.clearAfterXDrops = clearAfterXDrops.value;
   }
 
-  App.start({ passwordOBS: passwordOBS.pwd, passwordTwitch: passwordTwitch.pwd });
+  App.start();
 })();

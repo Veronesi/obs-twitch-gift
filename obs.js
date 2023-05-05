@@ -3,19 +3,10 @@ import configs from './configs.js';
 
 const OBS = {
   connect: async (password) => {
-    console.log('Conect obs...');
+    console.log('OBS: Conectando...');
     const obs = new OBSWebSocket();
-
-    await obs
-      .connect(configs.obs.host, password)
-      .then(() => {
-        console.log('OBS is connected!');
-      })
-      .catch((err) => {
-        console.error('Failed to connect to OBS');
-        console.error(err);
-      });
-
+    await obs.connect(configs.obs.host, password);
+    console.log('OBS: Conexion exitosa!');
     return obs;
   },
 };
