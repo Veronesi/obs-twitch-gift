@@ -1,3 +1,23 @@
+## Que puede hacer el BOT?
+- Conectarse a OBS y mostrar
+  - Cantidad de participantes
+  - Cantidad de keys dropeadas/totales
+  - Probabilidad con la que ganó
+  - Nombre del ganador (Twitch)
+  - Meses subscripto del ganador en el canal
+- Cada cuantos minutos de dropeara una key
+- Seleccionar ponderación a la hora de elegir un ganador
+  - Comunista: todos tienen la misma chance 
+  - Capitalista: Los subs tienen x2 chance
+  - Oligarquia: una chance mas por cada mes subscripto 
+- Metodo en el cual los usuarios del chat participaran en el drop
+  -  Una vez que hacen un comentario, participarán toda la sesión
+  -  Limiar la lista de participantes cada X drops 
+  -  Limpiar la lista cada vez que se dropea una key
+- Darle la clave al ganador por privado en Discord. Para esto si el ganador escribe el comando `!link miusuario#1234` (para que bot de Discord sepa que esa es su cuenta) y el le mandará por mensaje privado la llave que ganó automaticamente.
+- `!drop` muestra por el chat cuanto falta para el proximo drop y cuantas personas estan participando.
+  
+
 ## Conexión con Twitch:
 1. Generar el token de autenticación utilizado para el BOT
 https://twitchapps.com/tmi/
@@ -24,16 +44,9 @@ luego ir a la url generada. `https://discord.com/api/oauth2/authorize?client_id=
 4. agregar un nuevo `text` (name: `obs-twitch-gift`) en la escena `FMS_FULL`
 ![create scenes](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/create-scenes.png)
 
-## Archivo de configuracion de ejemplo
-```env
-// .env
-TWITCH_CHANNEL = "fanaes"
-TWITCH_USERNAME = "fanaesBot"
-TWITCH_OAUTH = "oauth:XXXXXX"
-                
-OBS_PASSWORD = "XXXXX"
+### Contacto
+- Email: ffanaes@gmail.com o facundoveronesi@gmail.com
+- Linkedin: https://www.linkedin.com/in/facundoveronesi
+- Twitch: https://www.twitch.tv/fanaes
 
-DISCORD_TOKEN = "XXXXXXX.XXXXXX.XXXXXXXX_XXXXXX"
-DISCORD_GUILD_ID = "XXXXXXXXXXX"
-DISCORD_CHANNEL_ID = "XXXXXXXXXXX"
-```
+_Bot creado para el E3 (@baitybait)_
