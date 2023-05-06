@@ -3,35 +3,79 @@ import twitchClient from './twitch.js';
 import obsClient from './obs.js';
 import DiscordClient from './discord.js';
 import configs from './configs.js';
+import lib from './lib.js';
 
 const App = {
+  // list of participants
   users: new Map(),
+  // list of keys to dropped
   keys: [],
-  winners: [],
+  // number of keys dropped
+  keysDropped: 0,
   lastWin: '-',
   nIntervId: null,
+  // interval in minutes to drop keys
   dropsMinutes: 0.5,
-  twitch: null,
-  obs: null,
+  // type of ponderation to win key
   ponderate: null,
+  // clear participants after some event
   clearListSelecction: false,
+  // clear participants after x drops
   clearAfterXDrops: 1,
+  // use to clear participant after x drops
   countDrops: 0,
-  chanel: '',
-  username: '',
   textToShow: [],
   nextDrop: 0,
+  // Map of username twitch : username discord
   discordNames: new Map(),
-  renderWinners: () => {
-    return App.keys.reduce((acc, e, i) => `${acc}${e}${App.winners[i] ? ` => ${App.winners[i]}` : ''}\n`, '');
-  },
-  randomIntFromInterval: (min, max) => {
-    // min and max included
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  },
-  dropKey: async () => {
+
+  start: async () => {
+    // read the keys
+    const fileKeys = await fs.readFileSync('./keys.txt', 'utf8');
+
+    // init the keys object
+    App.keys = fileKeys.split('\n').map((key) => ({
+      // code of key
+      code: key,
+      // winner's Twitch username
+      usernameTwitch: null,
+      // winner's Discord username
+      usernameDiscord: null,
+      // the winner's claimed the key
+      claimed: false,
+      droped: false,
+    }));
+
+    // clear OBS
+    obsClient.clear();
+    DiscordClient.listenMessages(App.messageDiscord);
+
+    // init the loop of the function who will drop keys
+    if (!App.nIntervId) App.nIntervId = setInterval(App.dropKey, App.dropsMinutes * 1000 * 60);
+
     App.nextDrop = Date.now() + App.dropsMinutes * 1000 * 60;
+    App.listentMessagesInTwitch();
+    twitchClient.onSubscription(({ username, userstate }) => {
+      App.users.set(username, lib.getMonthsSubscribed(userstate));
+    });
+  },
+  connectOBS: async (password) => {
+    await obsClient.connect(password);
+  },
+  connectTwitch: async (chanel, username, password) => {
+    await twitchClient.connect(chanel, username, password);
+  },
+  connectDiscord: async (token, channel) => {
+    await DiscordClient.connect(token, channel);
+  },
+  // drop the next key
+  dropKey: async () => {
+    // calculate the time when will have a new drop
+    App.nextDrop = Date.now() + App.dropsMinutes * 1000 * 60;
+
     let users = [];
+
+    // calculate ponderations
     switch (App.ponderate) {
       case configs.i18n.COMUNISTA:
         App.users.forEach((_, k) => {
@@ -52,44 +96,71 @@ const App = {
         process.exit();
     }
 
-    const rand = App.randomIntFromInterval(0, users.length - 1);
-    App.winners.push(users[rand]);
+    // get a random index to get a new winner
+    const rand = lib.randomIntFromInterval(0, users.length - 1);
+
+    // get the next key unassigned
+    const getLastUnlinkedKey = App.keys.findIndex((key) => !key.dropped);
+
+    // update the key
+    App.keys[getLastUnlinkedKey] = {
+      // data not updated
+      ...App.keys[getLastUnlinkedKey],
+      // username in Twitch
+      usernameTwitch: users[rand],
+      // username in Discord
+      usernameDiscord: App.discordNames.get(users[rand]) ?? null,
+      dropped: true,
+    };
+
+    App.keysDropped += 1;
     App.lastWin = users[rand];
+
     const participants = App.users.size;
     const probabilty = (100 * (App.users.get(App.lastWin) / users.length)).toFixed(2);
     App.countDrops += 1;
+
+    // check if need it clear the list of participants
     if (App.clearListSelecction && App.countDrops >= App.clearAfterXDrops) {
       App.countDrops = 0;
       App.users.clear();
     }
+    App.updateConsole();
 
-    fs.writeFileSync('./winners.txt', App.renderWinners());
+    // update the file with the winners
+    fs.writeFileSync('./winners.txt', lib.renderWinners(App.keys));
+
+    // update OBS message
     App.writeOBS(probabilty, participants);
   },
+  // listen a new message in the Discord chanel
   messageDiscord: (msg) => {
     try {
-      const user = App.discordNames.get(`${msg.author.username}#${msg.author.discriminator}`);
-      if (!user) {
+      // get a username: somename#1234
+      const usernameDiscord = `${msg.author.username}#${msg.author.discriminator}`;
+
+      // check if the user has an unclaimed key
+      const keyIndex = App.keys.findIndex((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
+
+      // the user hasn't won any keys or hasn't linked their Discord account with a Twitch user
+      if (keyIndex === -1) {
         msg.reply(
           // eslint-disable-next-line max-len
-          `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.env.TWITCH_CHANNEL} y escribe en el chat **!drop ${msg.author.username}#${msg.author.discriminator}**`
+          `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.env.TWITCH_CHANNEL} y escribe en el chat **!link ${usernameDiscord}**`
         );
         return;
       }
-      // check if win
-      const winnerPostion = App.winners.findIndex((e) => e === user);
-      if (winnerPostion > -1) {
-        msg.reply(`VAMOOOOOOOOOOOOO\n Felicidades @${user}`);
-        msg.author.send(`Código: ${App.keys[winnerPostion]}`);
-        return;
-      }
 
-      msg.reply(
-        // eslint-disable-next-line max-len
-        `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.env.TWITCH_CHANNEL} y escribe en el chat **!drop ${msg.author.username}#${msg.author.discriminator}**`
-      );
+      // response the message in the chanel
+      msg.reply(`VAMOOOOOOOOOOOOO\n Felicidades @${App.keys[keyIndex].usernameTwitch}`);
+
+      // send a key via DM in Discord
+      msg.author.send(`Código: ${App.keys[keyIndex].code}`);
+
+      // set the key claimed
+      App.keys[keyIndex].claimed = true;
     } catch (error) {
-      console.log(error);
+      console.log('messageDiscord: ', error.message);
     }
   },
   writeOBS: async (probabilty, participants) => {
@@ -101,119 +172,44 @@ const App = {
       // eslint-disable-next-line no-nested-ternary
       text += ` (${App.lastWin ? (points > 1 ? `${points - 1} Meses` : 'Plebe') : ''})`;
 
-    if (App.textToShow.includes(configs.i18n.show.KEYS_RESTANTES)) text += ` [Drops: ${App.winners.length}/${App.keys.length}]`;
+    if (App.textToShow.includes(configs.i18n.show.KEYS_RESTANTES)) text += ` [Drops: ${App.keysDropped}/${App.keys.length}]`;
 
     if (App.textToShow.includes(configs.i18n.show.PROBABILIDAD)) text += ` ${probabilty}%`;
 
     if (App.textToShow.includes(configs.i18n.show.CANTIDAD_PARTICIPANTES)) text += ` Cantidad de participantes: ${participants}`;
 
-    App.obs.call(
-      'SetInputSettings',
-      {
-        inputName: 'obs-twitch-gift',
-        inputSettings: {
-          text,
-        },
-      },
-      (err, data) => {
-        /* Error message and data. */
-        console.error('Using call SetInputSettings:', err, data);
-      }
-    );
+    obsClient.write(text);
   },
-  clearOBS: async () => {
-    App.obs.call(
-      'SetInputSettings',
-      {
-        inputName: 'obs-twitch-gift',
-        inputSettings: {
-          text: ``,
-        },
-      },
-      (err, data) => {
-        /* Error message and data. */
-        console.error('Using call SetInputSettings:', err, data);
-      }
-    );
-  },
-  getEnries: (tags) => {
-    if (!tags.subscriber) return 1;
+  listentMessagesInTwitch: () => {
+    App.updateConsole();
+    twitchClient.onMessage(({ channel, tags, message }) => {
+      // add the user in the participants list
+      if (!App.users.has(tags.username)) App.users.set(tags.username, lib.getMonthsSubscribed(tags));
 
-    if (tags['badge-info']?.subscriber) {
-      return Number(tags['badge-info'].subscriber);
-    }
+      if (/^!drop/.test(message))
+        twitchClient.sendMessage(channel, `@${tags.username} proximo drop en ${lib.getNextDrop(App.nextDrop)} (${App.users.size} participando)`);
 
-    return 2;
-  },
-  start: async () => {
-    const fileKeys = await fs.readFileSync('./keys.txt', 'utf8');
-    App.keys = fileKeys.split('\n');
-    App.clearOBS();
-    App.discord.listenMessages(App.messageDiscord);
-    if (!App.nIntervId) App.nIntervId = setInterval(App.dropKey, App.dropsMinutes * 1000 * 60);
-
-    App.nextDrop = Date.now() + App.dropsMinutes * 1000 * 60;
-    console.log('Esperando mensajes...');
-    App.twitch.on('message', (channel, tags, message) => {
-      if (!App.users.has(tags.username)) App.users.set(tags.username, App.getEnries(tags));
-
-      if (/^!drop/.test(message)) App.twitch.say(channel, `@${tags.username} proximo drop en ${App.getNextDrop()}`);
-      if (/^!win/.test(message)) App.twitch.whisper(tags.username, `proximo drop.`);
-      // console.clear();
-      console.log(
-        `Participantes: ${App.users.size} ~ Ultimo ganador: "${App.lastWin}" (${App.users.get(App.lastWin)}) [Drops: ${App.winners.length}/${
-          App.keys.length
-        }]`
-      );
+      // command to link the Twitch username with Discord username
       const match = message.match(/!link\s(\w+#\d+)/);
 
       if (match) {
-        App.discordNames.set(match[1], tags.username);
+        const [, usernameDiscord] = match;
+        App.discordNames.set(tags.username, usernameDiscord);
+
+        // update all keys who has win this user
+        App.keys.forEach((key, i) => {
+          if (key.usernameTwitch === tags.username) {
+            App.keys[i].usernameDiscord = usernameDiscord;
+          }
+        });
       }
 
-      if (App.winners.length === App.keys.length) process.exit();
+      App.updateConsole();
+      if (App.keysDropped === App.keys.length) process.exit();
     });
-
-    App.twitch.on('subscription', (channel, username, method, message, userstate) => {
-      App.users.set(username, Number(userstate['badge-info']?.subscriber) || 1);
-    });
   },
-  connectOBS: async (password) => {
-    try {
-      const obs = await obsClient.connect(password);
-      App.obs = obs;
-    } catch (error) {
-      if (/ECONNREFUSED/.test(error.message)) {
-        console.log('OBS: Verifica que tienes activado WebSocket Server. https://github.com/obsproject/obs-websocket/releases');
-      }
-
-      if (/Authentication\sfailed/.test(error.message)) {
-        console.log('OBS: Contraseña incorrecta');
-      }
-      process.exit();
-    }
-  },
-  connectTwitch: async (password) => {
-    try {
-      const twitch = await twitchClient.connect(App.chanel, App.username, password);
-      App.twitch = twitch;
-    } catch (error) {
-      process.exit();
-    }
-  },
-  connectDiscord: async (token, channel) => {
-    try {
-      await DiscordClient.connect(token, channel);
-      App.discord = DiscordClient;
-    } catch (error) {
-      process.exit();
-    }
-  },
-  getNextDrop: () => {
-    const time = App.nextDrop - Date.now();
-    if (time < 60 * 1000) return `${(time / 1000).toFixed(0)} segundos`;
-    const seconds = Number((time / 1000).toFixed(0)) % 60;
-    return `${(seconds / (60 * 1000)).toFixed(0)} minutos y ${seconds % 60} segundos`;
+  updateConsole: () => {
+    console.log(`Participantes: ${App.users.size}, Keys dropeadas: ${App.keysDropped}/${App.keys.length}`);
   },
 };
 

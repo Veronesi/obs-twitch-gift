@@ -1,26 +1,38 @@
 import { Client, GatewayIntentBits } from 'discord.js';
+import lib from './lib.js';
 
 const Discord = {
   client: null,
   channel: null,
   connect: async (token, channel) => {
     try {
-      console.log('Discord: Conectando...');
+      if (!token) {
+        throw new Error('Por fabor ingresa el token del BOT en el archivo .env en DISCORD_TOKEN');
+      }
+
+      if (!channel) {
+        throw new Error('Por fabor ingresa el id del canal el archivo .env en DISCORD_CHANNEL_ID');
+      }
+      lib.console.discord('Conectando...');
       Discord.channel = channel;
       Discord.client = new Client({
         intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages],
       });
 
-      Discord.client.login(token);
+      Discord.client.login(token).catch((error) => {
+        lib.console.discord(error.message);
+        process.exit();
+      });
 
       return new Promise((resolve) => {
         Discord.client.on('ready', async () => {
-          console.log(`Discord: ${Discord.client.user.tag} logeado correctamente\n`);
+          lib.console.discord(`${Discord.client.user.tag} logeado correctamente\n`);
           resolve();
         });
       });
     } catch (error) {
-      console.log(error.message);
+      lib.console.discord();
+      lib.console.discord(error.message);
       process.exit();
       return null;
     }
@@ -33,9 +45,6 @@ const Discord = {
 
       if (msg.channelId !== Discord.channel) return;
       fn(msg);
-      // msg.reply(`Si has ganado una clave por favor ve a https://www.twitch.tv/${process.env.TWITCH_CHANNEL} y escribe en el chat **!drop ${msg.author.username}#${msg.author.discriminator}**`);
-      // msg.reply('VAMOOOOOOOOOOOOO\n Felicidades @fanaes');
-      // msg.author.send('Código: IGJO4IJG-43509-43OFM-34FMO4O');
     });
   },
 };

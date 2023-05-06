@@ -3,7 +3,7 @@ const configs = {
     host: 'ws://127.0.0.1:4455',
   },
   i18n: {
-    COMUNISTA: 'Comunista: subs y no subs misma chance',
+    COMUNISTA: 'Comunista: todos tienen la misma chance',
     CAPITALISTA: 'Capitalista: Los subs tienen x2 chance',
     OLIGARQUIA: 'Oligarquia: una chance mas por cada mes subscripto',
     NUNCA_BORRAR: 'Una vez que hacen un comentario, participarán toda la sesión',
