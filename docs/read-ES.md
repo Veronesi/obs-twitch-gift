@@ -13,8 +13,27 @@ https://discord.com/developers/applications
 - en `scope` seleccionar `bot`
 - en `BOT PERMISSIONS` seleccionar en la sección `TEXT PERMISSIONS` la opción `Send Messages`
 luego ir a la url generada. `https://discord.com/api/oauth2/authorize?client_id=XXXXXXXX&permissions=0&scope=bot` seleccionar el servidor donde estará el bot.
-6. agregar en el archivo `.env`
+
+## Conexion con OBS
+1. Instalar obs-websocket (bajar hasta assets y descargar el archivo correspondiente) https://github.com/obsproject/obs-websocket/releases
+2. Conectar Websocket server, y generar una contraseña
+![websocket server](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/websocket-server.png)
+![obs config](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/obs-config.png)
+
+3. Crear dos escenas `FMS_FULL` y `FMS_HIDDEN`
+4. agregar un nuevo `text` (name: `obs-twitch-gift`) en la escena `FMS_FULL`
+![create scenes](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/create-scenes.png)
+
+## Archivo de configuracion de ejemplo
 ```env
-DISCORD_TOKEN="TOKEN_DE_AUTENTICACIÓN_DEL_BOT"
-DISCORD_CHANNEL_ID="ID_DEL_CANAL"
+// .env
+TWITCH_CHANNEL = "fanaes"
+TWITCH_USERNAME = "fanaesBot"
+TWITCH_OAUTH = "oauth:XXXXXX"
+                
+OBS_PASSWORD = "XXXXX"
+
+DISCORD_TOKEN = "XXXXXXX.XXXXXX.XXXXXXXX_XXXXXX"
+DISCORD_GUILD_ID = "XXXXXXXXXXX"
+DISCORD_CHANNEL_ID = "XXXXXXXXXXX"
 ```
