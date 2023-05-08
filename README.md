@@ -1,83 +1,123 @@
-## 🚧 This project is in an early development phase 🚧
+## 🚧 Este proyecto esta en fase de desarrollo temprano 🚧
 
-### 🇪🇸 Guia en Español [ver](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/read-ES.md)
+### 🇺🇸 English version [Link](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/read-EN.md)
 
-# 🎁 Bot to drops keys on Twitch
+# 🎁 Bot de Twitch para dropeo masivo de llaves, vinculado con OBS y repartidas por Discord
 
-# Install and Config 
-1. Install obs-websocket (scroll down to assets) https://github.com/obsproject/obs-websocket/releases
-2. Connect Websocket server, Generate and Copy password
+## Que puede hacer el BOT?
+- Conectarse a OBS y mostrar
+  - Cantidad de participantes
+  - Cantidad de keys dropeadas/totales
+  - Probabilidad con la que ganó
+  - Nombre del ganador (Twitch)
+  - Meses subscripto del ganador en el canal
+- Cada cuantos minutos de dropeara una key
+- Seleccionar ponderación a la hora de elegir un ganador
+  - Comunista: todos tienen la misma chance 
+  - Capitalista: Los subs tienen x2 chance
+  - Oligarquia: una chance mas por cada mes subscripto 
+- Metodo en el cual los usuarios del chat participaran en el drop
+  -  Una vez que hacen un comentario, participarán toda la sesión
+  -  Limiar la lista de participantes cada X drops 
+  -  Limpiar la lista cada vez que se dropea una key
+- Darle la clave al ganador por privado en Discord. Para esto si el ganador escribe el comando `!link miusuario#1234` (para que bot de Discord sepa que esa es su cuenta) y el le mandará por mensaje privado la llave que ganó automaticamente.
+- `!drop` muestra por el chat cuanto falta para el proximo drop y cuantas personas estan participando.
+  
+
+## Conexión con Twitch:
+1. Generar el token de autenticación utilizado para el BOT
+https://twitchapps.com/tmi/
+
+
+## Conexión con Discord
+1. Crear una cuenta BOT:
+https://discord.com/developers/applications
+2. En mis aplicaciones, selecionar el nuevo BOT creado e ir a `Menu > Bot` y activar la opción `MESSAGE CONTENT INTENT`
+3. En mis aplicaciones, ir a `Menu > Oauth2` y generar un nuevo token en `Client information`
+4. Copiar el ID del canal donde el BOT interactuara con los usuarios (para ver el id es necesario activar el `modo desarrollador` https://support.discord.com/hc/es/articles/206346498--D%C3%B3nde-puedo-encontrar-mi-ID-de-usuario-servidor-mensaje-)
+5. Generar url de invitación, ir a `Menu > Oauth2 > URL Generator`
+- en `scope` seleccionar `bot`
+- en `BOT PERMISSIONS` seleccionar en la sección `TEXT PERMISSIONS` la opción `Send Messages`
+luego ir a la url generada. `https://discord.com/api/oauth2/authorize?client_id=XXXXXXXX&permissions=0&scope=bot` seleccionar el servidor donde estará el bot.
+
+## Conexion con OBS
+1. Instalar obs-websocket (bajar hasta assets y descargar el archivo correspondiente) https://github.com/obsproject/obs-websocket/releases
+2. Conectar Websocket server, y generar una contraseña
 ![websocket server](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/websocket-server.png)
 ![obs config](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/obs-config.png)
 
-3. Create two scenes `FMS_FULL` and `FMS_HIDDEN`
-4. Add a new `text` (name: `obs-twitch-gift`) in the scene `FMS_FULL`
+3. Crear dos escenas `FMS_FULL` y `FMS_HIDDEN`
+4. agregar un nuevo `text` (name: `obs-twitch-gift`) en la escena `FMS_FULL`
 ![create scenes](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/create-scenes.png)
-5. Install node.js https://nodejs.org/en
-6. Clone repo `git clone https://github.com/Veronesi/obs-twitch-gift.git`
-7. Install dependences 
+
+## Instalación y ejecución del programa
+- Instalar Node js https://nodejs.org/en
+- Descargar el bot e instalar dependencias
 ```bash
+git clone https://github.com/Veronesi/obs-twitch-gift.git
 cd obs-twitch-gift
-npm i
+npm i --yes
 ```
-8. Run Script
+- Crear archivo de configuración. Dentro de la carpeta, crear un archivo llamado `.env` y completar con los valores de configuración
+```env
+# Ejemplo
+
+# Nombre del canal
+TWITCH_CHANNEL = "fanaes"
+
+# Usuario del bot 
+TWITCH_USERNAME = "fanaes"
+
+# Codigo generado en https://twitchapps.com/tmi/ (OAuth del bot)
+TWITCH_OAUTH = "oauth:eorig1oi43oij"
+
+# Contraseña generada en OBS, en la seccion "Websocket server"
+OBS_PASSWORD = "erogmoe1go"
+
+# Token de autentificación del Bot de Discord
+DISCORD_TOKEN = "kerngjkreng.ekrg1ekr.ekrjg erg-ekjrgnerjkg"
+
+# ID del servidor de Discord
+DISCORD_GUILD_ID = "43958390458"
+
+# ID del canal de Discord
+DISCORD_CHANNEL_ID = "3459834598345"
+```
+- En el archivo `keys.txt` pegar las claves a regalar.
+```
+486P3-J8FLN-OB3QZ
+1OBXK-R7JA9-DR3WC
+INRNQ-W7SJP-A909I
+LLX54-ZRAMA-8B659
+7M8MJ-WS8CU-MDOFF
+ZHOPL-864VD-3KXJN
+BQ78W-ESBNA-VCQ1R
+0F66J-TMTGQ-79ZEC
+GTQJE-ANXL2-E1EMO
+```
+- Ejecutar el programa:
 ```bash
 npm run start
 ```
-
-# Example
-### Add keys in `keys.txt`
+- A medida que se dropean las claves, en el archivo `winners.txt` ira dando información en tiempo real de los ganadores
 ```
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-```
-### Run program
-![example run program](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/example.gif)
-
-### View winners list in `winners.txt`
-```
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => marcsg05
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => guinsuan
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => lucas48283
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => marcsg05
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => nelodev
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => pero_wn_420
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => diegooviedo36
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => acesuprark
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => imanol_84
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => coowi__
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX => pero_wn_420
-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+       CLAVE      | Usuario Twitch | Clave Reclamada | Usuario de Discord
+--------------------------------------------------------------------------
+486P3-J8FLN-OB3QZ |    @fanaes     |       true      | fanaes#1337 
+1OBXK-R7JA9-DR3WC |   @baitybait   |       false     | null 
+INRNQ-W7SJP-A909I |                |                 |
+LLX54-ZRAMA-8B659 |                |                 |
+7M8MJ-WS8CU-MDOFF |                |                 |
+ZHOPL-864VD-3KXJN |                |                 |
+BQ78W-ESBNA-VCQ1R |                |                 |
+0F66J-TMTGQ-79ZEC |                |                 |
+GTQJE-ANXL2-E1EMO |                |                 |
 ```
 
-# Run
-`npm run start`
-1. `Por favor, ingresa la constraseña del servidor del OBS`: Set the password generate in steep 2 (Install and Configs)
-2. `Nombre de usuario del bot?: (fanaes)`: Bot Username, (not need who same of the chanel) 
-3. `Por favor, ingresa el OAuth de Twitch` goto https://twitchapps.com/tmi/ and copy OAuth Password
-4. `Cual es el nombre de tu canal?` channel where participants will be obtained
-5. `Cada cuantos minutos se hará el drop?` Every how many minutes the drop will be made (for exmaple, if you need every 30 seconds, write 0.5) 
-6. `tilizar ponderación?` winning percentage
-- `Comunista: subs y no subs misma chance` all users has the same percentage for win
-- `Capitalista: Los subs tienen x2 chance` subs get double chance for win
-- `Oligarquia: una chance mas por cada mes subscripto` for example. if one subscriber has 6 month of subscribe, he has x6 chance for win
-7. `Actualizar la lista de participantes:` select reload method of participants
-- `Una vez que hacen un comentario, participarán toda la sesión` users are never deleted
-- `Limiar la lista de participantes cada X drops` delete users after X drops (2 default)
-- `Limpiar la lista cada vez que se dropea una clave` when user get a drop, the users list, will clear
 
-### Credits
-ffanaes@gmail.com (fanaes)
+### Contacto
+- Email: ffanaes@gmail.com o facundoveronesi@gmail.com
+- Linkedin: https://www.linkedin.com/in/facundoveronesi
+- Twitch: https://www.twitch.tv/fanaes
 
-
-https://twitchapps.com/tmi/
+_Bot creado para el E3 (@baitybait)_
