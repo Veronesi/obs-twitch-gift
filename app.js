@@ -28,6 +28,8 @@ const App = {
   nextDrop: 0,
   // Map of username twitch : username discord
   discordNames: new Map(),
+  // autosend keys or after send !drop in a channel
+  autoSendKeys: true,
 
   start: async () => {
     // read the keys
@@ -123,7 +125,7 @@ const App = {
     // check if need it clear the list of participants
     if (App.clearListSelecction && App.countDrops >= App.clearAfterXDrops) {
       App.countDrops = 0;
-      App.users.clear();
+      App.users = new Map();
     }
     App.updateConsole();
 
@@ -132,6 +134,11 @@ const App = {
 
     // update OBS message
     App.writeOBS(probabilty, participants);
+
+    // finish proccess
+    if (App.keysDropped === App.keys.length) {
+      clearInterval(App.nIntervId);
+    }
   },
   // listen a new message in the Discord chanel
   messageDiscord: (msg) => {
@@ -140,10 +147,11 @@ const App = {
       const usernameDiscord = `${msg.author.username}#${msg.author.discriminator}`;
 
       // check if the user has an unclaimed key
-      const keyIndex = App.keys.findIndex((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
+      // const keyIndex = App.keys.findIndex((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
+      const keys = App.keys.filter((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
 
       // the user hasn't won any keys or hasn't linked their Discord account with a Twitch user
-      if (keyIndex === -1) {
+      if (!keys.length) {
         msg.reply(
           // eslint-disable-next-line max-len
           `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.env.TWITCH_CHANNEL} y escribe en el chat **!link ${usernameDiscord}**`
@@ -152,17 +160,24 @@ const App = {
       }
 
       // response the message in the chanel
-      msg.reply(`VAMOOOOOOOOOOOOO\n Felicidades @${App.keys[keyIndex].usernameTwitch}`);
+      msg.reply(`VAMOOOOOOOOOOOOO\n Felicidades @${keys[0].usernameTwitch}`);
 
       // send a key via DM in Discord
-      msg.author.send(`Código: ${App.keys[keyIndex].code}`);
+      // msg.author.send(`Código: ${App.keys[keyIndex].code}`);
+      msg.author.send(keys.reduce((acc, key) => `${acc}Código: ${key.code}\n`, ''));
 
       // set the key claimed
-      App.keys[keyIndex].claimed = true;
+      // App.keys[keyIndex].claimed = true;
+      App.keys.forEach((key, index) => {
+        if (key.usernameDiscord === usernameDiscord) {
+          App.keys[index].claimed = true;
+        }
+      });
     } catch (error) {
       console.log('messageDiscord: ', error.message);
     }
   },
+  sendKey: async () => {},
   writeOBS: async (probabilty, participants) => {
     const points = App.users.get(App.lastWin);
     let text = '';

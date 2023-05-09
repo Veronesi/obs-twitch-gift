@@ -42,10 +42,12 @@ const Discord = {
       if (msg.author.bot) {
         return;
       }
-
       if (msg.channelId !== Discord.channel) return;
       fn(msg);
     });
+  },
+  sendDM: () => {
+
   },
 };
 
