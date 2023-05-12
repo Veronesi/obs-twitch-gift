@@ -1,10 +1,17 @@
 import OBSWebSocket from 'obs-websocket-js';
+import { config } from 'dotenv';
 import configs from './configs.js';
 import lib from './lib.js';
 
+config();
+
 const OBS = {
   client: null,
+  enable: !!process.env.OBS_ENABLE,
   connect: async (password) => {
+    if (!OBS.enable) {
+      return;
+    }
     try {
       if (!password) {
         throw new Error('Por favor, ingresa la contraseña de obs .env en OBS_PASSWORD');
@@ -26,6 +33,9 @@ const OBS = {
     }
   },
   clear: () => {
+    if (!OBS.enable) {
+      return;
+    }
     OBS.client.call(
       'SetInputSettings',
       {
@@ -41,6 +51,9 @@ const OBS = {
     );
   },
   write: (text) => {
+    if (!OBS.enable) {
+      return;
+    }
     OBS.client.call(
       'SetInputSettings',
       {

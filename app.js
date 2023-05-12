@@ -30,6 +30,8 @@ const App = {
   discordNames: new Map(),
   // autosend keys or after send !drop in a channel
   autoSendKeys: true,
+  // Discord cache users
+  discordUsersCache: new Map(),
 
   start: async () => {
     // read the keys
@@ -104,6 +106,15 @@ const App = {
     // get the next key unassigned
     const getLastUnlinkedKey = App.keys.findIndex((key) => !key.dropped);
 
+    const discordUsername = App.discordNames.get(users[rand]);
+    const discordID = App.discordUsersCache.get(discordUsername);
+    let claimed = false;
+    if (discordUsername && discordID) {
+      claimed = true;
+      const message = `Código: ${App.keys[getLastUnlinkedKey].code}`;
+      DiscordClient.sendMessage(discordID, message);
+    }
+
     // update the key
     App.keys[getLastUnlinkedKey] = {
       // data not updated
@@ -113,6 +124,7 @@ const App = {
       // username in Discord
       usernameDiscord: App.discordNames.get(users[rand]) ?? null,
       dropped: true,
+      claimed,
     };
 
     App.keysDropped += 1;
@@ -138,6 +150,7 @@ const App = {
     // finish proccess
     if (App.keysDropped === App.keys.length) {
       clearInterval(App.nIntervId);
+      App.showMenu();
     }
   },
   // listen a new message in the Discord chanel
@@ -152,6 +165,7 @@ const App = {
 
       // the user hasn't won any keys or hasn't linked their Discord account with a Twitch user
       if (!keys.length) {
+        App.discordUsersCache.set(usernameDiscord, msg.author.id);
         msg.reply(
           // eslint-disable-next-line max-len
           `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.env.TWITCH_CHANNEL} y escribe en el chat **!link ${usernameDiscord}**`
@@ -163,11 +177,9 @@ const App = {
       msg.reply(`VAMOOOOOOOOOOOOO\n Felicidades @${keys[0].usernameTwitch}`);
 
       // send a key via DM in Discord
-      // msg.author.send(`Código: ${App.keys[keyIndex].code}`);
       msg.author.send(keys.reduce((acc, key) => `${acc}Código: ${key.code}\n`, ''));
 
       // set the key claimed
-      // App.keys[keyIndex].claimed = true;
       App.keys.forEach((key, index) => {
         if (key.usernameDiscord === usernameDiscord) {
           App.keys[index].claimed = true;
@@ -177,7 +189,6 @@ const App = {
       console.log('messageDiscord: ', error.message);
     }
   },
-  sendKey: async () => {},
   writeOBS: async (probabilty, participants) => {
     const points = App.users.get(App.lastWin);
     let text = '';
@@ -210,6 +221,8 @@ const App = {
       if (match) {
         const [, usernameDiscord] = match;
         App.discordNames.set(tags.username, usernameDiscord);
+        // check if exist in cache
+        const id = App.discordUsersCache.get(usernameDiscord);
 
         // update all keys who has win this user
         App.keys.forEach((key, i) => {
@@ -217,14 +230,28 @@ const App = {
             App.keys[i].usernameDiscord = usernameDiscord;
           }
         });
-      }
 
+        const keys = App.keys.filter((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
+        if (id && keys.length) {
+          // get all keys
+          const message = keys.reduce((acc, key) => `${acc}Código: ${key.code}\n`, '');
+          App.keys.forEach((key, index) => {
+            if (key.usernameDiscord === usernameDiscord) {
+              App.keys[index].claimed = true;
+            }
+          });
+          DiscordClient.sendMessage(id, message);
+        }
+      }
       App.updateConsole();
-      if (App.keysDropped === App.keys.length) process.exit();
     });
   },
   updateConsole: () => {
     console.log(`Participantes: ${App.users.size}, Keys dropeadas: ${App.keysDropped}/${App.keys.length}`);
+  },
+  showMenu: async () => {
+    const stdin = process.openStdin();
+    stdin.addListener('data', () => {});
   },
 };
 

@@ -1,11 +1,19 @@
 import { Client, GatewayIntentBits } from 'discord.js';
+import { config } from 'dotenv';
 import lib from './lib.js';
+
+config();
 
 const Discord = {
   client: null,
   channel: null,
+  enable: !!process.env.DISCORD_ENABLE,
   connect: async (token, channel) => {
     try {
+      if (!Discord.enable) {
+        return null;
+      }
+
       if (!token) {
         throw new Error('Por fabor ingresa el token del BOT en el archivo .env en DISCORD_TOKEN');
       }
@@ -38,6 +46,9 @@ const Discord = {
     }
   },
   listenMessages: (fn = () => {}) => {
+    if (!Discord.enable) {
+      return;
+    }
     Discord.client.on('messageCreate', (msg) => {
       if (msg.author.bot) {
         return;
@@ -46,8 +57,16 @@ const Discord = {
       fn(msg);
     });
   },
-  sendDM: () => {
+  sendMessage: (id, message) => {
+    if (!Discord.enable) {
+      return;
+    }
 
+    try {
+      Discord.client.users.fetch(id, false).then((user) => user.send(message));
+    } catch (error) {
+      console.log(error.message);
+    }
   },
 };
 

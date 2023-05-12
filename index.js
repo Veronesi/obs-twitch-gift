@@ -16,9 +16,11 @@ config();
 TWITCH_CHANNEL = ""
 TWITCH_USERNAME = ""
 TWITCH_OAUTH = ""
-                
+ 
+OBS_ENABLE = "1"
 OBS_PASSWORD = ""
 
+DISCORD_ENABLE = "1"
 DISCORD_TOKEN = ""
 DISCORD_GUILD_ID = ""
 DISCORD_CHANNEL_ID = ""
@@ -30,22 +32,24 @@ DISCORD_CHANNEL_ID = ""
   await App.connectOBS(process.env.OBS_PASSWORD);
   await App.connectDiscord(process.env.DISCORD_TOKEN, process.env.DISCORD_CHANNEL_ID);
 
-  const textToShow = await inquirer.prompt([
-    {
-      type: 'checkbox',
-      name: 'value',
-      message: 'Que datos mostrar en OBS?:',
-      default: [configs.i18n.show.NOMBRE_GANADOR, configs.i18n.show.MESES_SYBSCRIPTO],
-      choices: [
-        configs.i18n.show.CANTIDAD_PARTICIPANTES,
-        configs.i18n.show.KEYS_RESTANTES,
-        configs.i18n.show.PROBABILIDAD,
-        configs.i18n.show.NOMBRE_GANADOR,
-        configs.i18n.show.MESES_SYBSCRIPTO,
-      ],
-    },
-  ]);
-  App.textToShow = textToShow.value;
+  if (process.env.OBS_ENABLE) {
+    const textToShow = await inquirer.prompt([
+      {
+        type: 'checkbox',
+        name: 'value',
+        message: 'Que datos mostrar en OBS?:',
+        default: [configs.i18n.show.NOMBRE_GANADOR, configs.i18n.show.MESES_SYBSCRIPTO],
+        choices: [
+          configs.i18n.show.CANTIDAD_PARTICIPANTES,
+          configs.i18n.show.KEYS_RESTANTES,
+          configs.i18n.show.PROBABILIDAD,
+          configs.i18n.show.NOMBRE_GANADOR,
+          configs.i18n.show.MESES_SYBSCRIPTO,
+        ],
+      },
+    ]);
+    App.textToShow = textToShow.value;
+  }
 
   const dropsMinutes = await inquirer.prompt([
     {
