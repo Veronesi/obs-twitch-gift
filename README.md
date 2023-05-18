@@ -71,9 +71,14 @@ TWITCH_USERNAME = "fanaes"
 # Codigo generado en https://twitchapps.com/tmi/ (OAuth del bot)
 TWITCH_OAUTH = "oauth:eorig1oi43oij"
 
+# Utilizar o no OBS (dejar "" para desabilitarlo)
+OBS_ENABLE = ""
+
 # Contraseña generada en OBS, en la seccion "Websocket server"
 OBS_PASSWORD = "erogmoe1go"
 
+# Utilizar o no DISCORD (dejar "" para desabilitarlo)
+DISCORD_ENABLE = "1"
 # Token de autentificación del Bot de Discord
 DISCORD_TOKEN = "kerngjkreng.ekrg1ekr.ekrjg erg-ekjrgnerjkg"
 
