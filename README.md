@@ -23,6 +23,21 @@
 - Darle la clave al ganador por privado en Discord. Para esto si el ganador escribe el comando `!link miusuario#1234` (para que bot de Discord sepa que esa es su cuenta) y el le mandará por mensaje privado la llave que ganó automaticamente.
 - `!drop` muestra por el chat cuanto falta para el proximo drop y cuantas personas estan participando.
   
+## Habilitar o Deshabilitar
+En el caso de queres habilitar o deshabilitar OBS o Discord, en el archivo `.env` cambiar la variable `DISCORD_ENABLE` o `OBS_ENABLE` como en los ejemplos:
+```env
+# Discord deshabilitado
+DISCORD_ENABLE = ""
+
+# Discord habilitado
+DISCORD_ENABLE = "1"
+
+# OBS deshabilitado
+OBS_ENABLE = ""
+
+# OBS habilitado
+OBS_ENABLE = "1"
+```
 
 ## Conexión con Twitch:
 1. Generar el token de autenticación utilizado para el BOT
@@ -72,7 +87,7 @@ TWITCH_USERNAME = "fanaes"
 TWITCH_OAUTH = "oauth:eorig1oi43oij"
 
 # Utilizar o no OBS (dejar "" para desabilitarlo)
-OBS_ENABLE = ""
+OBS_ENABLE = "1"
 
 # Contraseña generada en OBS, en la seccion "Websocket server"
 OBS_PASSWORD = "erogmoe1go"
