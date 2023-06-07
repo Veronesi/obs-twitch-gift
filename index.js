@@ -20,12 +20,13 @@ TWITCH_OAUTH = ""
 OBS_ENABLE = "1"
 OBS_PASSWORD = ""
 
-DISCORD_ENABLE = "1"
+DISCORD_ENABLE = ""
 DISCORD_TOKEN = ""
 DISCORD_GUILD_ID = ""
 DISCORD_CHANNEL_ID = ""
     `
     );
+    console.log('Completa el archivo .env y vuelve a ejecutar la aplicaciòn');
   }
 
   await App.connectTwitch(process.env.TWITCH_CHANNEL, process.env.TWITCH_USERNAME, process.env.TWITCH_OAUTH);
