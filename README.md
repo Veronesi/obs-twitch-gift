@@ -3,7 +3,11 @@
 ### 🇺🇸 English version [Link](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/read-EN.md) (incomplete)
 
 ### 🎬 Ejemplo de uso [Link Youtube](https://youtu.be/e1U6CvC_dgU)
+
 # 🎁 Bot de Twitch para dropeo masivo de llaves, vinculado con OBS y repartidas por Discord
+
+## Casos de Uso:
+[BaityLive: Empieza el NO-E3 - SUMMER GAME FEST 2023 (DORITOS FEST)](https://www.youtube.com/watch?v=OfCf0L9I73g)
 
 ## Que puede hacer el BOT?
 - Conectarse a OBS y mostrar
