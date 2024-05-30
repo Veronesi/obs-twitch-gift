@@ -107,6 +107,12 @@ DISCORD_GUILD_ID = "43958390458"
 
 # ID del canal de Discord
 DISCORD_CHANNEL_ID = "3459834598345"
+
+# Token de seguridad para comunicarse la api y el servidor
+WEB_TOKEN = "123456"
+
+# url del host
+WEB_URL = "http://localhost:3000/keys/bulk-create"
 ```
 - En el archivo `keys.txt` pegar las claves a regalar.
 ```
