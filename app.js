@@ -4,6 +4,7 @@ import obsClient from './obs.js';
 import DiscordClient from './discord.js';
 import configs from './configs.js';
 import lib from './lib.js';
+import axios from 'axios';
 
 const App = {
   // list of participants
@@ -113,6 +114,14 @@ const App = {
       claimed = true;
       const message = `Código: ${App.keys[getLastUnlinkedKey].code}`;
       DiscordClient.sendMessage(discordID, message);
+    }
+
+    if (process.env.WEB_TOKEN && process.env.WEB_URL) {
+      axios.post(process.env.WEB_URL, {
+        key: App.keys[getLastUnlinkedKey].code,
+        username: users[rand],
+        hash: process.env.WEB_TOKEN,
+      });
     }
 
     // update the key
@@ -251,7 +260,7 @@ const App = {
   },
   showMenu: async () => {
     const stdin = process.openStdin();
-    stdin.addListener('data', () => {});
+    stdin.addListener('data', () => { });
   },
 };
 
