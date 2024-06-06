@@ -1,7 +1,7 @@
 # 🎁 Bot de Twitch para dropeo masivo de llaves
 
 > [!TIP]
-> En caso de querer que se repartan de forma automatica, ver [github.com/Veronesi/api-twitch-gift](https://github.com/Veronesi/api-twitch-gift)
+> En caso de querer que se repartan de forma automatica desde tu sitio web, ver [github.com/Veronesi/api-twitch-gift](https://github.com/Veronesi/api-twitch-gift)
 
 ### 🎬 Ejemplo de uso [Link Youtube](https://youtu.be/e1U6CvC_dgU)
 ### 🎬 Ejemplo de uso con un reclamador automatico [Link Youtube](https://www.youtube.com/watch?v=Kjc9XxFy2dA) ([ver repo de servidor web](https://github.com/Veronesi/api-twitch-gift))
