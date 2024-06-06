@@ -1,15 +1,27 @@
-## 🚧 Este proyecto esta en fase de desarrollo temprano 🚧
+# 🎁 Bot de Twitch para dropeo masivo de llaves
 
-### 🇺🇸 English version [Link](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/read-EN.md) (incomplete)
+> [!TIP]
+> En caso de querer que se repartan de forma automatica, ver [github.com/Veronesi/api-twitch-gift](https://github.com/Veronesi/api-twitch-gift)
 
 ### 🎬 Ejemplo de uso [Link Youtube](https://youtu.be/e1U6CvC_dgU)
+### 🎬 Ejemplo de uso con un reclamador automatico [Link Youtube](https://www.youtube.com/watch?v=Kjc9XxFy2dA) ([ver repo de servidor web](https://github.com/Veronesi/api-twitch-gift))
 
-# 🎁 Bot de Twitch para dropeo masivo de llaves, vinculado con OBS y repartidas por Discord
+## Tabla de contenido
+- [Casos de uso](#casos-de-uso)
+- [Que puede hacer el bot](#que-puede-hacer-el-bot)
+- [Habilitar o Deshabilitar funcionalidades](#habilitar-o-deshabilitar-funcionalidades)
+- [Conexión con Twitch](#conexión-con-twitch)
+- [Conexión con OBS](#conexión-con-obs)
+- [Conexión con servidor web](#conexión-con-servidor-web)
+- [Conexión con Discord](#conexión-con-discord)
+- [Instalación y ejecución del programa](#instalación-y-ejecución-del-programa)
+- [Contacto](#contacto)
 
-## Casos de Uso:
+
+## Casos de Uso
 [BaityLive: Empieza el NO-E3 - SUMMER GAME FEST 2023 (DORITOS FEST)](https://www.youtube.com/watch?v=OfCf0L9I73g)
 
-## Que puede hacer el BOT?
+## Que puede hacer el BOT
 - Conectarse a OBS y mostrar
   - Cantidad de participantes
   - Cantidad de keys dropeadas/totales
@@ -26,9 +38,10 @@
   -  Limiar la lista de participantes cada X drops 
   -  Limpiar la lista cada vez que se dropea una key
 - Darle la clave al ganador por privado en Discord. Para esto si el ganador escribe el comando `!link miusuario#1234` (para que bot de Discord sepa que esa es su cuenta) y el le mandará por mensaje privado la llave que ganó automaticamente.
+- Darle la clave al logearse con su cuenta de twitch en tu página web, [repositorio de la web](https://github.com/Veronesi/api-twitch-gift)
 - `!drop` muestra por el chat cuanto falta para el proximo drop y cuantas personas estan participando.
   
-## Habilitar o Deshabilitar
+## Habilitar o Deshabilitar funcionalidades
 En el caso de queres habilitar o deshabilitar OBS o Discord, en el archivo `.env` cambiar la variable `DISCORD_ENABLE` o `OBS_ENABLE` como en los ejemplos:
 ```env
 # Discord deshabilitado
@@ -42,12 +55,38 @@ OBS_ENABLE = ""
 
 # OBS habilitado
 OBS_ENABLE = "1"
+
+# Servidor web deshabilitado
+WEB_URL = ""
+WEB_TOKEN = ""
+
+# Servidor web habilitado
+WEB_URL = "https://example.com/keys/bulk-create"
+WEB_TOKEN = "1234567890"
 ```
 
-## Conexión con Twitch:
+## Conexión con Twitch
 1. Generar el token de autenticación utilizado para el BOT
 https://twitchapps.com/tmi/
 
+## Conexión con OBS
+1. Instalar obs-websocket (bajar hasta assets y descargar el archivo correspondiente) https://github.com/obsproject/obs-websocket/releases
+2. Conectar Websocket server, y generar una contraseña
+![websocket server](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/websocket-server.png)
+![obs config](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/obs-config.png)
+
+3. Crear dos escenas `FMS_FULL` y `FMS_HIDDEN`
+4. agregar un nuevo `text` (name: `obs-twitch-gift`) en la escena `FMS_FULL`
+![create scenes](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/create-scenes.png)
+
+## Conexión con servidor web
+1. Inicializar el servidor web, vease ([link](https://github.com/Veronesi/api-twitch-gift))
+2. modificar el archivo .env donde `WEB_TOKEN` es el token para comunicarse con el servidor (crear un hash random, recuerda que debe ser el mismo que se pone en `.env` del servidor web)
+3. modificar el archivo .env donde `WEB_URL`, ten en cuenta de no olvidarse de agregar al final del dominio `/keys/bulk-create`
+   ```bash
+    WEB_URL = "https://example.com/keys/bulk-create"
+    WEB_TOKEN = "1234567890"
+   ```
 
 ## Conexión con Discord
 1. Crear una cuenta BOT:
@@ -59,16 +98,6 @@ https://discord.com/developers/applications
 - en `scope` seleccionar `bot`
 - en `BOT PERMISSIONS` seleccionar en la sección `TEXT PERMISSIONS` la opción `Send Messages`
 luego ir a la url generada. `https://discord.com/api/oauth2/authorize?client_id=XXXXXXXX&permissions=0&scope=bot` seleccionar el servidor donde estará el bot.
-
-## Conexion con OBS
-1. Instalar obs-websocket (bajar hasta assets y descargar el archivo correspondiente) https://github.com/obsproject/obs-websocket/releases
-2. Conectar Websocket server, y generar una contraseña
-![websocket server](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/websocket-server.png)
-![obs config](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/obs-config.png)
-
-3. Crear dos escenas `FMS_FULL` y `FMS_HIDDEN`
-4. agregar un nuevo `text` (name: `obs-twitch-gift`) en la escena `FMS_FULL`
-![create scenes](https://github.com/Veronesi/obs-twitch-gift/blob/main/docs/images/create-scenes.png)
 
 ## Instalación y ejecución del programa
 - Instalar Node js https://nodejs.org/en
@@ -112,7 +141,7 @@ DISCORD_CHANNEL_ID = "3459834598345"
 WEB_TOKEN = "123456"
 
 # url del host
-WEB_URL = "http://localhost:3000/keys/bulk-create"
+WEB_URL = "https://example.com/keys/bulk-create"
 ```
 - En el archivo `keys.txt` pegar las claves a regalar.
 ```
