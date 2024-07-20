@@ -30,18 +30,33 @@ const twitch = {
         channels: [chanel],
       });
       await twitch.client.connect();
-      lib.console.twitch(`@${username} conectado exitosamente`);
+      lib.console.twitch(`@${username} conectado exitosamente al canal /${chanel}`);
     } catch (error) {
       lib.console.twitch(error.message);
       process.exit();
     }
   },
-  onSubscription: (fn = () => {}) => {
+  onSubscription: (fn = () => { }) => {
     twitch.client.on('subscription', (channel, username, method, message, userstate) => {
       fn({ channel, username, method, message, userstate });
     });
   },
-  onMessage: (fn = () => {}) => {
+  onGiftSubscription: (fn = () => { }) => {
+    twitch.client.on('subgift', (channel, username, streakMonths, recipient, methods, tags) => {
+      fn({ channel, username, methods, recipient, streakMonths, tags });
+    });
+  },
+  onGiftRandomSubscription: (fn = () => { }) => {
+    twitch.client.on('submysterygift', (channel, username, streakMonths, recipient, methods, tags) => {
+      fn({ channel, username, methods, recipient, streakMonths, tags });
+    });
+  },
+  onReSubscription: (fn = () => { }) => {
+    twitch.client.on('resub', (channel, username, streakMonths, msg, tags, methods) => {
+      fn({ channel, username, streakMonths, msg, tags, methods });
+    });
+  },
+  onMessage: (fn = () => { }) => {
     twitch.client.on('message', (channel, tags, message) => {
       fn({ channel, tags, message });
     });

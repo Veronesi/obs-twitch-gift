@@ -1,0 +1,47 @@
+{
+  "tag":"resub",
+  "username":"lucia_nicolee",
+  "streakMonths":1,
+  "msg":null,
+  "tags":{
+     "badge-info":{
+        "subscriber":"3"
+     },
+     "badges":{
+        "subscriber":"3"
+     },
+     "color":"#9ACD32",
+     "display-name":"lucia_nicolee",
+     "emotes":null,
+     "flags":null,
+     "id":"bae71895-619d-42de-91fe-a0811b145587",
+     "login":"lucia_nicolee",
+     "mod":false,
+     "msg-id":"resub",
+     "msg-param-cumulative-months":"3",
+     "msg-param-months":false,
+     "msg-param-multimonth-duration":true,
+     "msg-param-multimonth-tenure":false,
+     "msg-param-should-share-streak":true,
+     "msg-param-streak-months":true,
+     "msg-param-sub-plan-name":"Channel Subscription (mixwell)",
+     "msg-param-sub-plan":"1000",
+     "msg-param-was-gifted":"false",
+     "room-id":"96116107",
+     "subscriber":true,
+     "system-msg":"lucia_nicolee subscribed at Tier 1. They've subscribed for 3 months, currently on a 1 month streak!",
+     "tmi-sent-ts":"1721268368411",
+     "user-id":"535191711",
+     "user-type":null,
+     "vip":false,
+     "emotes-raw":null,
+     "badge-info-raw":"subscriber/3",
+     "badges-raw":"subscriber/3",
+     "message-type":"resub"
+  },
+  "methods":{
+     "prime":false,
+     "plan":"1000",
+     "planName":"Channel Subscription (mixwell)"
+  }
+}

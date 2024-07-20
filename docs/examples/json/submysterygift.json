@@ -1,0 +1,45 @@
+{
+   "tag":"submysterygift",
+   "username":"Culohhh",
+   "methods":{
+      "badge-info":{
+         "subscriber":"22"
+      },
+      "badges":{
+         "moderator":"1",
+         "subscriber":"18",
+         "bits":"1000000"
+      },
+      "color":"#08F4BE",
+      "display-name":"Culohhh",
+      "emotes":null,
+      "flags":null,
+      "id":"962bf368-f702-48f7-84b1-39416da0613a",
+      "login":"culohhh",
+      "mod":true,
+      "msg-id":"submysterygift",
+      "msg-param-community-gift-id":"16081473522951658609",
+      "msg-param-mass-gift-count":"10",
+      "msg-param-origin-id":"16081473522951658609",
+      "msg-param-sender-count":"302",
+      "msg-param-sub-plan":"1000",
+      "room-id":"267160288",
+      "subscriber":true,
+      "system-msg":"Culohhh is gifting 10 Tier 1 Subs to caseoh_'s community! They've gifted a total of 302 in the channel!",
+      "tmi-sent-ts":"1721271810689",
+      "user-id":"625611351",
+      "user-type":"mod",
+      "vip":false,
+      "emotes-raw":null,
+      "badge-info-raw":"subscriber/22",
+      "badges-raw":"moderator/1,subscriber/18,bits/1000000",
+      "message-type":"submysterygift"
+   },
+   "recipient":{
+      "prime":false,
+      "plan":"1000",
+      "planName":null
+   },
+   "streakMonths":10,
+   "tags":"undefined"
+}

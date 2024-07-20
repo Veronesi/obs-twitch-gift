@@ -3,6 +3,14 @@ const configs = {
     host: 'ws://127.0.0.1:4455',
   },
   i18n: {
+    PARTICIPANT_OPTIONS: {
+      ALL: 'Todos (participan si hablan por el chat)',
+      SUBS: 'Solo subscriptores (participan si hablan por el chat)',
+      EVENT_SUBS: 'Aquellos que se subscriben o regalen una subcripción',
+    },
+    JUST_A_DROP: 'Solo una vez cuando yo quiera',
+    JUST_AFTER_TIME: 'Solo una vez luego de X tiempo',
+    DROP_LOOP: 'Dropear claves cada cierto tiempo',
     COMUNISTA: 'Comunista: todos tienen la misma chance',
     CAPITALISTA: 'Capitalista: Los subs tienen x2 chance',
     OLIGARQUIA: 'Oligarquia: una chance mas por cada mes subscripto',

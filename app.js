@@ -1,12 +1,31 @@
 import fs from 'node:fs';
+import { spawn } from 'node:child_process';
+import http from 'node:http';
+import axios from 'axios';
 import twitchClient from './twitch.js';
 import obsClient from './obs.js';
 import DiscordClient from './discord.js';
-import configs from './configs.js';
 import lib from './lib.js';
-import axios from 'axios';
+
+import WebDropSubsToday from './web/index.js';
+import WebHome from './web/home.js';
+import WebDropMassiveConfig from './web/dropmasiveconfig.js';
+import WebDropMassive from './web/WebDropMassive.js';
 
 const App = {
+  sources: {
+    svg: {
+      gift:
+        // eslint-disable-next-line max-len
+        '<svg  width="20" height="25" viewBox="0 0 20 20" aria-hidden="true"><path stroke="#00d6d6" stroke-width="1" fill="#028383" fill-rule="evenodd" d="M16 6h2v6h-1v6H3v-6H2V6h2V4.793c0-2.507 3.03-3.762 4.803-1.99.131.131.249.275.352.429L10 4.5l.845-1.268a2.81 2.81 0 0 1 .352-.429C12.969 1.031 16 2.286 16 4.793V6zM6 4.793V6h2.596L7.49 4.341A.814.814 0 0 0 6 4.793zm8 0V6h-2.596l1.106-1.659a.814.814 0 0 1 1.49.451zM16 8v2h-5V8h5zm-1 8v-4h-4v4h4zM9 8v2H4V8h5zm0 4H5v4h4v-4z" clip-rule="evenodd"></path></svg>',
+      prime:
+        // eslint-disable-next-line max-len
+        '<svg width="20" height="20" viewBox="0 0 20 20"><path fill="#4185f3" fill-rule="evenodd" d="M18 5v8a2 2 0 0 1-2 2H4a2.002 2.002 0 0 1-2-2V5l4 3 4-4 4 4 4-3z" clip-rule="evenodd"></path></svg>',
+      sub:
+        // eslint-disable-next-line max-len
+        '<svg width="20" height="20" version="1.1" viewBox="0 0 20 20" x="0px" y="0px" data-a-selector="tw-core-button-icon" aria-hidden="true" class="ScIconSVG-sc-1q25cff-1 jpczqG"><g><path fill="#9047ff" d="M8.944 2.654c.406-.872 1.706-.872 2.112 0l1.754 3.77 4.2.583c.932.13 1.318 1.209.664 1.853l-3.128 3.083.755 4.272c.163.92-.876 1.603-1.722 1.132L10 15.354l-3.579 1.993c-.846.47-1.885-.212-1.722-1.132l.755-4.272L2.326 8.86c-.654-.644-.268-1.723.664-1.853l4.2-.583 1.754-3.77z"></path></g></svg>',
+    },
+  },
   // list of participants
   users: new Map(),
   // list of keys to dropped
@@ -15,8 +34,17 @@ const App = {
   keysDropped: 0,
   lastWin: '-',
   nIntervId: null,
+  // PORT for interactive web
+  interactiveWebPort: null,
+  HTTPServer: null,
+  // onceDrop
+  onceDropLog: '',
+  winners: [],
+  runOnceDrop: true,
+  // drop after X time
+  timeToDrop: null,
   // interval in minutes to drop keys
-  dropsMinutes: 0.5,
+  dropsMinutes: null,
   // type of ponderation to win key
   ponderate: null,
   // clear participants after some event
@@ -33,10 +61,158 @@ const App = {
   autoSendKeys: true,
   // Discord cache users
   discordUsersCache: new Map(),
+  IsStartDropsKeysSubsToday: false,
 
   start: async () => {
+    // clear OBS
+    obsClient.clear();
+    DiscordClient.listenMessages(App.messageDiscord);
+
+    App.HTTPServer = http.createServer((req, res) => {
+      const { url, params } = lib.parseUrl(req.url);
+      try {
+        if (req.method === 'GET' && req.url === '/favicon.ico') {
+          res.statusCode = 200;
+          // res.setHeader('Content-Type', 'image/png');
+          const image = fs.readFileSync('./public/favicon.ico');
+          res.end(image);
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/drop-massive-keys') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/html');
+          res.end(WebDropMassive());
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/drop-massive-keys-start') {
+          if (process.env.OBS_ENABLE) {
+            if (params.CANTIDAD_PARTICIPANTES) {
+              App.textToShow.push('CANTIDAD_PARTICIPANTES');
+            }
+            if (params.MESES_SYBSCRIPTO) {
+              App.textToShow.push('MESES_SYBSCRIPTO');
+            }
+            if (params.PROBABILIDAD) {
+              App.textToShow.push('PROBABILIDAD');
+            }
+            if (params.KEYS_RESTANTES) {
+              App.textToShow.push('KEYS_RESTANTES');
+            }
+          }
+
+          App.dropsMinutes = Number(params.dropsMinutes);
+          App.ponderate = params.ponderate;
+          App.clearListSelecction = params.clearListSelecction !== 'NUNCA_BORRAR';
+          if (params.clearListSelecction === 'BORRAR_TIEMPO') {
+            App.clearAfterXDrops = Number(params.clearAfterXDrops);
+          }
+          App.startAutoDrop();
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/html');
+          res.end('true');
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/drop-massive-keys-config') {
+          App.startDropsKeysSubsToday();
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/html');
+          res.end(WebDropMassiveConfig());
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/drop-keys-subs-today') {
+          App.startDropsKeysSubsToday();
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/html');
+          res.end(WebDropSubsToday());
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/html');
+          res.end(WebHome());
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/reload-table') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(
+            JSON.stringify({
+              users: [...App.users]
+                .map((user) => ({ username: user[0], numberOfShares: user[1].numberOfShares }))
+                .reverse()
+                .sort((a, b) => (a.numberOfShares > b.numberOfShares ? -1 : 1)),
+              logs: App.onceDropLog
+                .split('\n')
+                .reverse()
+                .filter((e) => e),
+            })
+          );
+          return;
+        }
+        if (req.method === 'GET' && url === '/drop-key') {
+          // App.runOnceDrop = false;
+          const winners = [];
+          let users = [];
+
+          App.users.forEach((v, k) => {
+            users = users.concat(new Array(v.numberOfShares).fill(k));
+          });
+          users = users.filter((e) => !App.winners.includes(e));
+          while (winners.length < 2 && users.length > 0) {
+            const rand = lib.randomIntFromInterval(0, users.length - 1);
+            winners.push(users[rand]);
+            App.winners.push(users[rand]);
+            // eslint-disable-next-line no-loop-func
+            users = users.filter((e) => e !== users[rand]);
+          }
+
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(winners));
+          return;
+        }
+
+        if (req.method === 'GET' && req.url === '/image.png') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'image/png');
+          const image = fs.readFileSync('./public/image.png');
+          res.end(image);
+          return;
+        }
+
+        if (req.method === 'GET' && req.url === '/jeff-bezos.png') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'image/png');
+          const image = fs.readFileSync('./public/jeff-bezos.png');
+          res.end(image);
+          return;
+        }
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/html');
+        res.end('404 not found');
+      } catch (error) {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/html');
+        res.end('404 not found');
+      }
+    });
+
+    App.HTTPServer.listen(App.interactiveWebPort, 'localhost', () => {
+      lib.console.web(`Servidor corriendo en: http://localhost:${App.interactiveWebPort}/`);
+      spawn('open', [`http://localhost:${App.interactiveWebPort}/`]);
+    });
+  },
+
+  startAutoDrop: () => {
     // read the keys
-    const fileKeys = await fs.readFileSync('./keys.txt', 'utf8');
+    const fileKeys = fs.readFileSync('./keys.txt', 'utf8');
 
     // init the keys object
     App.keys = fileKeys.split('\n').map((key) => ({
@@ -51,10 +227,6 @@ const App = {
       droped: false,
     }));
 
-    // clear OBS
-    obsClient.clear();
-    DiscordClient.listenMessages(App.messageDiscord);
-
     // init the loop of the function who will drop keys
     if (!App.nIntervId) App.nIntervId = setInterval(App.dropKey, App.dropsMinutes * 1000 * 60);
 
@@ -63,6 +235,99 @@ const App = {
     twitchClient.onSubscription(({ username, userstate }) => {
       App.users.set(username, lib.getMonthsSubscribed(userstate));
     });
+  },
+
+  startDropsKeysSubsToday: () => {
+    if (App.IsStartDropsKeysSubsToday) return;
+    App.IsStartDropsKeysSubsToday = true;
+    lib.console.web('Esperando subscripciones...');
+    twitchClient.onSubscription(({ username, userstate }) => {
+      App.WriteDropLog(userstate['system-msg'], username, 1, 'onSubscription');
+      App.addUser(username, 1, null);
+    });
+    twitchClient.onGiftSubscription(({ username, tags }) => {
+      App.WriteDropLog(tags['system-msg'], username, 1, 'onGiftSubscription');
+      App.addUser(username, 1, tags['msg-param-origin-id']);
+    });
+    twitchClient.onGiftRandomSubscription(({ username, streakMonths, methods }) => {
+      App.WriteDropLog(methods['system-msg'], username, streakMonths, 'onGiftRandomSubscription');
+      App.addUser(username, streakMonths, methods['msg-param-origin-id'], true);
+    });
+    twitchClient.onReSubscription(({ username, tags }) => {
+      App.WriteDropLog(tags['system-msg'], username, 1, 'onReSubscription');
+      App.addUser(username, 1, null);
+    });
+
+    // twitchClient.onMessage(({ tags }) => {
+    //   App.addUser(tags.username, 1, null);
+    // });
+  },
+
+  WriteDropLog: (msg, name, month, type) => {
+    let message = '';
+    lib.console.participant(msg);
+    switch (type) {
+      case 'onSubscription':
+        if (msg.includes('Prime.')) {
+          message = `${App.sources.svg.prime}${name} se subscribió con el Prime`;
+        } else {
+          message = `${App.sources.svg.sub}${name} se subscribió`;
+        }
+        break;
+      case 'onGiftSubscription':
+        if (msg.match(/(?:sub\sto\s(\w+)!(?:\s.*!)*$)/)) {
+          message = `${App.sources.svg.gift}${name} regaló una sub a ${msg.match(/(?:sub\sto\s(\w+)!(?:\s.*!)*$)/)[1]}`;
+        } else {
+          message = `${App.sources.svg.gift}${name} regaló una sub`;
+        }
+        break;
+      case 'onGiftRandomSubscription':
+        if (msg.match(/gifting\s(\d+)\s/)) {
+          message = `${App.sources.svg.gift}${name} regaló ${msg.match(/gifting\s(\d+)\s/)[1]} subs`;
+        } else {
+          message = `${App.sources.svg.gift}${name} regaló unas subs`;
+        }
+        break;
+      case 'onReSubscription':
+        if (msg.includes('Prime.')) {
+          message = `${App.sources.svg.prime}${name} se resubscribió con el Prime`;
+        } else {
+          message = `${App.sources.svg.sub}${name} se resubscribió`;
+        }
+        break;
+      default:
+        message = `${name} está participando`;
+        break;
+    }
+
+    // console.log(message);
+    App.onceDropLog += `${message}\n`;
+  },
+  addUser: async (username, month, id, isRandom = false) => {
+    if (!App.runOnceDrop) return;
+
+    const user = App.users.get(username);
+    if (!user) {
+      App.users.set(username, {
+        numberOfShares: month,
+        ids: id ? [id] : [],
+      });
+      return;
+    }
+
+    // check if is this gift is a GiftRandomSubscription content
+    if (id && !isRandom && user.ids.includes(id)) return;
+
+    // remove the "single subscription"
+    if (id && isRandom && user.ids.includes(id)) {
+      user.numberOfShares -= 1;
+    }
+
+    user.numberOfShares += month;
+    if (id) {
+      user.ids.push(id);
+    }
+    App.users.set(username, user);
   },
   connectOBS: async (password) => {
     await obsClient.connect(password);
@@ -82,17 +347,17 @@ const App = {
 
     // calculate ponderations
     switch (App.ponderate) {
-      case configs.i18n.COMUNISTA:
+      case 'COMUNISTA':
         App.users.forEach((_, k) => {
           users = users.concat(k);
         });
         break;
-      case configs.i18n.CAPITALISTA:
+      case 'CAPITALISTA':
         App.users.forEach((v, k) => {
           users = users.concat(v > 1 ? [k, k] : [k]);
         });
         break;
-      case configs.i18n.OLIGARQUIA:
+      case 'OLIGARQUIA':
         App.users.forEach((v, k) => {
           users = users.concat(new Array(v).fill(k));
         });
@@ -176,8 +441,8 @@ const App = {
       if (!keys.length) {
         App.discordUsersCache.set(usernameDiscord, msg.author.id);
         msg.reply(
-          // eslint-disable-next-line max-len
-          `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.env.TWITCH_CHANNEL} y escribe en el chat **!link ${usernameDiscord}**`
+          // eslint-disable-next-line max-len, prettier/prettier
+          `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.argv[2] ?? process.env.TWITCH_CHANNEL} y escribe en el chat **!link ${usernameDiscord}**`
         );
         return;
       }
@@ -201,28 +466,28 @@ const App = {
   writeOBS: async (probabilty, participants) => {
     const points = App.users.get(App.lastWin);
     let text = '';
-    if (App.textToShow.includes(configs.i18n.show.NOMBRE_GANADOR)) text += `Ultimo ganador: "${App.lastWin}"`;
+    if (App.textToShow.includes('NOMBRE_GANADOR')) text += `Ultimo ganador: "${App.lastWin}"`;
 
-    if (App.textToShow.includes(configs.i18n.show.MESES_SYBSCRIPTO))
+    if (App.textToShow.includes('MESES_SYBSCRIPTO'))
       // eslint-disable-next-line no-nested-ternary
       text += ` (${App.lastWin ? (points > 1 ? `${points - 1} Meses` : 'Plebe') : ''})`;
 
-    if (App.textToShow.includes(configs.i18n.show.KEYS_RESTANTES)) text += ` [Drops: ${App.keysDropped}/${App.keys.length}]`;
+    if (App.textToShow.includes('KEYS_RESTANTES')) text += ` [Drops: ${App.keysDropped}/${App.keys.length}]`;
 
-    if (App.textToShow.includes(configs.i18n.show.PROBABILIDAD)) text += ` ${probabilty}%`;
+    if (App.textToShow.includes('PROBABILIDAD')) text += ` ${probabilty}%`;
 
-    if (App.textToShow.includes(configs.i18n.show.CANTIDAD_PARTICIPANTES)) text += ` Cantidad de participantes: ${participants}`;
+    if (App.textToShow.includes('CANTIDAD_PARTICIPANTES')) text += ` Cantidad de participantes: ${participants}`;
 
     obsClient.write(text);
   },
   listentMessagesInTwitch: () => {
     App.updateConsole();
-    twitchClient.onMessage(({ channel, tags, message }) => {
+    twitchClient.onMessage(({ tags, message }) => {
       // add the user in the participants list
       if (!App.users.has(tags.username)) App.users.set(tags.username, lib.getMonthsSubscribed(tags));
 
-      if (/^!drop/.test(message))
-        twitchClient.sendMessage(channel, `@${tags.username} proximo drop en ${lib.getNextDrop(App.nextDrop)} (${App.users.size} participando)`);
+      // if (/^!drop/.test(message))
+      //   twitchClient.sendMessage(channel, `@${tags.username} proximo drop en ${lib.getNextDrop(App.nextDrop)} (${App.users.size} participando)`);
 
       // command to link the Twitch username with Discord username
       const match = message.match(/!link\s(\w+#\d+)/);
@@ -260,7 +525,9 @@ const App = {
   },
   showMenu: async () => {
     const stdin = process.openStdin();
-    stdin.addListener('data', () => { });
+    stdin.addListener('data', () => {
+      console.log(App.users);
+    });
   },
 };
 

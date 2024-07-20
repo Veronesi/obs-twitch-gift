@@ -1,0 +1,39 @@
+{
+  "tag":"subscription",
+  "username":"ayashabambi",
+  "userstate":{
+     "badge-info":{
+        "subscriber":"1"
+     },
+     "badges":{
+        "subscriber":"0"
+     },
+     "color":null,
+     "display-name":"ayashabambi",
+     "emotes":null,
+     "flags":null,
+     "id":"7bf63b21-fb17-4f78-808d-bbb2f070c113",
+     "login":"ayashabambi",
+     "mod":false,
+     "msg-id":"sub",
+     "msg-param-cumulative-months":true,
+     "msg-param-months":false,
+     "msg-param-multimonth-duration":true,
+     "msg-param-multimonth-tenure":false,
+     "msg-param-should-share-streak":false,
+     "msg-param-sub-plan-name":"Channel Subscription (imkaicenat)",
+     "msg-param-sub-plan":"1000",
+     "msg-param-was-gifted":"false",
+     "room-id":"641972806",
+     "subscriber":true,
+     "system-msg":"ayashabambi subscribed at Tier 1.",
+     "tmi-sent-ts":"1721269092667",
+     "user-id":"1096086573",
+     "user-type":null,
+     "vip":false,
+     "emotes-raw":null,
+     "badge-info-raw":"subscriber/1",
+     "badges-raw":"subscriber/0",
+     "message-type":"sub"
+  }
+}

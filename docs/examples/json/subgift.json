@@ -1,0 +1,48 @@
+{
+  "tag":"subgift",
+  "username":"officialsteakhouseburrito",
+  "giftSubCount":"undefined",
+  "methods":{
+     "prime":false,
+     "plan":"1000",
+     "planName":"Subscription (caseoh_): Cuh-munity"
+  },
+  "tags":{
+     "badge-info":{
+        "subscriber":"11"
+     },
+     "badges":{
+        "subscriber":"9",
+        "sub-gifter":"25"
+     },
+     "color":"#FF69B4",
+     "display-name":"officialsteakhouseburrito",
+     "emotes":null,
+     "flags":null,
+     "id":"885f195e-9999-439b-ba3b-fee155eeb2e0",
+     "login":"officialsteakhouseburrito",
+     "mod":false,
+     "msg-id":"subgift",
+     "msg-param-community-gift-id":"9324252083526606711",
+     "msg-param-gift-months":true,
+     "msg-param-months":true,
+     "msg-param-origin-id":"9324252083526606711",
+     "msg-param-recipient-display-name":"wes37284",
+     "msg-param-recipient-id":"496552187",
+     "msg-param-recipient-user-name":"wes37284",
+     "msg-param-sender-count":false,
+     "msg-param-sub-plan-name":"Subscription (caseoh_): Cuh-munity",
+     "msg-param-sub-plan":"1000",
+     "room-id":"267160288",
+     "subscriber":true,
+     "system-msg":"officialsteakhouseburrito gifted a Tier 1 sub to wes37284!",
+     "tmi-sent-ts":"1721271003931",
+     "user-id":"178297215",
+     "user-type":null,
+     "vip":false,
+     "emotes-raw":null,
+     "badge-info-raw":"subscriber/11",
+     "badges-raw":"subscriber/9,sub-gifter/25",
+     "message-type":"subgift"
+  }
+}
