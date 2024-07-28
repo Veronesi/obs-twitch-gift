@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { spawn } from 'node:child_process';
+import { exec } from 'node:child_process';
 import http from 'node:http';
 import axios from 'axios';
 import twitchClient from './twitch.js';
@@ -204,10 +204,37 @@ const App = {
       }
     });
 
-    App.HTTPServer.listen(App.interactiveWebPort, 'localhost', () => {
-      lib.console.web(`Servidor corriendo en: http://localhost:${App.interactiveWebPort}/`);
-      spawn('open', [`http://localhost:${App.interactiveWebPort}/`]);
-    });
+    try {
+      App.HTTPServer.listen(App.interactiveWebPort, 'localhost', () => {
+        lib.console.web(`Servidor corriendo en: http://localhost:${App.interactiveWebPort}/`);
+        try {
+          let command = '';
+          const url = `http://localhost:${App.interactiveWebPort}/`;
+          switch (process.platform) {
+            case 'darwin': // macOS
+              command = `open ${url}`;
+              break;
+            case 'win32': // Windows
+              command = `start ${url}`;
+              break;
+            case 'linux': // Linux
+              command = `xdg-open ${url}`;
+              break;
+            default:
+              console.log('Unsupported platform');
+          }
+          exec(command, (error) => {
+            if (error) {
+              lib.console.web(`error' ${error}`);
+            }
+          });
+        } catch (error) {
+          lib.console.web(`error' ${error.message}`);
+        }
+      });
+    } catch (error) {
+      lib.console.web(`error' ${error.message}`);
+    }
   },
 
   startAutoDrop: () => {
