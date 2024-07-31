@@ -7,6 +7,8 @@ import obsClient from './obs.js';
 import DiscordClient from './discord.js';
 import lib from './lib.js';
 
+import jeffimage from './public/jeff-bezos-random.js';
+
 import WebDropSubsToday from './web/index.js';
 import WebHome from './web/home.js';
 import WebDropMassiveConfig from './web/dropmasiveconfig.js';
@@ -24,6 +26,8 @@ const App = {
       sub:
         // eslint-disable-next-line max-len
         '<svg width="20" height="20" version="1.1" viewBox="0 0 20 20" x="0px" y="0px" data-a-selector="tw-core-button-icon" aria-hidden="true" class="ScIconSVG-sc-1q25cff-1 jpczqG"><g><path fill="#9047ff" d="M8.944 2.654c.406-.872 1.706-.872 2.112 0l1.754 3.77 4.2.583c.932.13 1.318 1.209.664 1.853l-3.128 3.083.755 4.272c.163.92-.876 1.603-1.722 1.132L10 15.354l-3.579 1.993c-.846.47-1.885-.212-1.722-1.132l.755-4.272L2.326 8.86c-.654-.644-.268-1.723.664-1.853l4.2-.583 1.754-3.77z"></path></g></svg>',
+      // eslint-disable-next-line no-undef
+      force: `<img height="20" width="20" src="${jeffimage}" />`,
     },
   },
   // list of participants
@@ -83,6 +87,21 @@ const App = {
           res.statusCode = 200;
           res.setHeader('Content-Type', 'text/html');
           res.end(WebDropMassive());
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/add-user') {
+          const { username = '', numbershares = '1' } = params;
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          if (!params.username) {
+            res.end({});
+            return;
+          }
+
+          App.WriteDropLog(`El baito dijo que ${username} participa`, username, +numbershares, 'onforce');
+          App.addUser(username, +numbershares, null);
+          res.end({});
           return;
         }
 
@@ -321,6 +340,9 @@ const App = {
         } else {
           message = `${App.sources.svg.sub}${name} se resubscribió`;
         }
+        break;
+      case 'onforce':
+        message = `${App.sources.svg.force} El baito dijo que ${name} participa`;
         break;
       default:
         message = `${name} está participando`;

@@ -49,11 +49,25 @@ export default function WebDropSubsToday() {
           align-items: center;
           gap: .5em;
         }
+          .input {
+    margin: 1em 0;
+    width: 100%;
+    display: block;
+    padding: .5em 1em;
+    border-radius: .5em;
+    border: solid 1px #666;
+}
     </style>
 </head>
 <body style="max-width: 700px; margin: 0 auto;display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; width: 100vw;background-image: url('jeff-bezos.png');">
   <h3 style="display: flex; justify-content: center; align-items: center;margin-top: 1em;">
   <img src="image.png" style="margin-bottom: 1em;height: 10em; width: 10em;" />
+  </h3>
+      <div class="d-grid" style="grid-template-columns: 6em 1fr auto;gap: 1em; max-width: 33em;">
+    <input class="input" type="number" placeholder="cant. de participaciones" name="numbershares" value="1" />
+    <input name="username" class="input" type="text" placeholder="Nombre del pibe" value="" />
+    <div id="add-user" style="margin: 1em 0;"><button id="btn-add-user" style="cursor: pointer;background-color: #9047ff; color: #fff; text-decoration: none; padding: .5em 2em; border-radius: .3em; border: none;font-weight: 900;">Agregar participante</button></div>
+  </div>
   <h1 style="margin-bottom: 1em; text-align: center;">Participantes: <span id="participantes">0</span> - Puntos totales: <span id="participaciones">0</span></h1>
   <div id="main">
   <div style="display: flex; min-width: 38em; justify-content: space-between;">
@@ -138,6 +152,20 @@ export default function WebDropSubsToday() {
       document.querySelector('#reload-table').innerHTML = "Pausar la actualización de la tabla";
       nInterval = setInterval(reloadTable, 5000);
     }
+
+    document.querySelector('#add-user').onclick = () => {
+      document.querySelector('#btn-add-user').innerHTML = 'Cargando...';
+      const username = document.querySelector('[name="username"]').value;
+      const numbershares = document.querySelector('[name="numbershares"]').value;
+      document.querySelector('[name="username"]').value = "";
+      fetch(\`/add-user?username=\${username}&numbershares=\${numbershares}\`)
+        .catch(() => {})
+        .finally(() => {
+           document.querySelector('#btn-add-user').innerHTML = 'Agregar participante';
+           reloadTable();
+        });
+    };
+    
 </script>
 </body>
 </html>`;
