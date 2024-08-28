@@ -1,16 +1,15 @@
 // @ts-ignore
-// import inquirer from 'inquirer';
 import { config } from 'dotenv';
 import fs from 'node:fs';
 import App from './app.js';
-// import configs from './configs.js';
+import lib from './lib.js';
 
 config();
 
 (async () => {
-  const existEnv = await fs.existsSync('./.env');
+  const existEnv = fs.existsSync('./.env');
   if (!existEnv) {
-    console.log('Creando archivo de configuracion .env ...');
+    lib.console.server('Creando archivo de configuracion .env ...');
     fs.writeFileSync(
       './.env',
       `
@@ -27,11 +26,10 @@ DISCORD_GUILD_ID = ""
 DISCORD_CHANNEL_ID = ""
     `
     );
-    console.log('Completa el archivo .env y vuelve a ejecutar la aplicaciòn');
+    lib.console.server('Completa el archivo .env y vuelve a ejecutar la aplicación');
   }
   await App.connectTwitch(process.argv[2] ?? process.env.TWITCH_CHANNEL, process.env.TWITCH_USERNAME, process.env.TWITCH_OAUTH);
   await App.connectOBS(process.env.OBS_PASSWORD);
-  await App.connectDiscord(process.env.DISCORD_TOKEN, process.env.DISCORD_CHANNEL_ID);
 
   App.interactiveWebPort = process.env.INTERACTIVE_PORT || 3000;
   App.start();

@@ -1,18 +1,9 @@
 import fs from 'node:fs';
-import { exec } from 'node:child_process';
-import http from 'node:http';
-import axios from 'axios';
 import twitchClient from './twitch.js';
 import obsClient from './obs.js';
-import DiscordClient from './discord.js';
+import Server from './server.js';
 import lib from './lib.js';
-
 import jeffimage from './public/jeff-bezos-random.js';
-
-import WebDropSubsToday from './web/index.js';
-import WebHome from './web/home.js';
-import WebDropMassiveConfig from './web/dropmasiveconfig.js';
-import WebDropMassive from './web/WebDropMassive.js';
 
 const App = {
   sources: {
@@ -30,10 +21,8 @@ const App = {
       force: `<img height="20" width="20" src="${jeffimage}" />`,
     },
   },
-  // list of participants
+  // Lista de participantes
   users: new Map(),
-  // list of keys to dropped
-  keys: [],
   // number of keys dropped
   keysDropped: 0,
   lastWin: '-',
@@ -44,6 +33,7 @@ const App = {
   // onceDrop
   onceDropLog: '',
   winners: [],
+  winnersMassive: [],
   runOnceDrop: true,
   // drop after X time
   timeToDrop: null,
@@ -59,324 +49,135 @@ const App = {
   countDrops: 0,
   textToShow: [],
   nextDrop: 0,
-  // Map of username twitch : username discord
-  discordNames: new Map(),
-  // autosend keys or after send !drop in a channel
-  autoSendKeys: true,
-  // Discord cache users
-  discordUsersCache: new Map(),
   IsStartDropsKeysSubsToday: false,
 
   start: async () => {
-    // clear OBS
-    obsClient.clear();
-    DiscordClient.listenMessages(App.messageDiscord);
-
-    App.HTTPServer = http.createServer((req, res) => {
-      const { url, params } = lib.parseUrl(req.url);
-      try {
-        if (req.method === 'GET' && req.url === '/favicon.ico') {
-          res.statusCode = 200;
-          // res.setHeader('Content-Type', 'image/png');
-          const image = fs.readFileSync('./public/favicon.ico');
-          res.end(image);
-          return;
-        }
-
-        if (req.method === 'GET' && url === '/drop-massive-keys') {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/html');
-          res.end(WebDropMassive());
-          return;
-        }
-
-        if (req.method === 'GET' && url === '/add-user') {
-          const { username = '', numbershares = '1' } = params;
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          if (!params.username) {
-            res.end({});
-            return;
-          }
-
-          App.WriteDropLog(`El baito dijo que ${username} participa`, username, +numbershares, 'onforce');
-          App.addUser(username, +numbershares, null);
-          res.end({});
-          return;
-        }
-
-        if (req.method === 'GET' && url === '/drop-massive-keys-start') {
-          if (process.env.OBS_ENABLE) {
-            if (params.CANTIDAD_PARTICIPANTES) {
-              App.textToShow.push('CANTIDAD_PARTICIPANTES');
-            }
-            if (params.MESES_SYBSCRIPTO) {
-              App.textToShow.push('MESES_SYBSCRIPTO');
-            }
-            if (params.PROBABILIDAD) {
-              App.textToShow.push('PROBABILIDAD');
-            }
-            if (params.KEYS_RESTANTES) {
-              App.textToShow.push('KEYS_RESTANTES');
-            }
-          }
-
-          App.dropsMinutes = Number(params.dropsMinutes);
-          App.ponderate = params.ponderate;
-          App.clearListSelecction = params.clearListSelecction !== 'NUNCA_BORRAR';
-          if (params.clearListSelecction === 'BORRAR_TIEMPO') {
-            App.clearAfterXDrops = Number(params.clearAfterXDrops);
-          }
-          App.startAutoDrop();
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/html');
-          res.end('true');
-          return;
-        }
-
-        if (req.method === 'GET' && url === '/drop-massive-keys-config') {
-          App.startDropsKeysSubsToday();
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/html');
-          res.end(WebDropMassiveConfig());
-          return;
-        }
-
-        if (req.method === 'GET' && url === '/drop-keys-subs-today') {
-          App.startDropsKeysSubsToday();
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/html');
-          res.end(WebDropSubsToday());
-          return;
-        }
-
-        if (req.method === 'GET' && url === '/') {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/html');
-          res.end(WebHome());
-          return;
-        }
-
-        if (req.method === 'GET' && url === '/reload-table') {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(
-            JSON.stringify({
-              users: [...App.users]
-                .map((user) => ({ username: user[0], numberOfShares: user[1].numberOfShares }))
-                .reverse()
-                .sort((a, b) => (a.numberOfShares > b.numberOfShares ? -1 : 1)),
-              logs: App.onceDropLog
-                .split('\n')
-                .reverse()
-                .filter((e) => e),
-            })
-          );
-          return;
-        }
-        if (req.method === 'GET' && url === '/drop-key') {
-          // App.runOnceDrop = false;
-          const winners = [];
-          let users = [];
-
-          App.users.forEach((v, k) => {
-            users = users.concat(new Array(v.numberOfShares).fill(k));
-          });
-          users = users.filter((e) => !App.winners.includes(e));
-          while (winners.length < 2 && users.length > 0) {
-            const rand = lib.randomIntFromInterval(0, users.length - 1);
-            winners.push(users[rand]);
-            App.winners.push(users[rand]);
-            // eslint-disable-next-line no-loop-func
-            users = users.filter((e) => e !== users[rand]);
-          }
-
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(winners));
-          return;
-        }
-
-        if (req.method === 'GET' && req.url === '/image.png') {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'image/png');
-          const image = fs.readFileSync('./public/image.png');
-          res.end(image);
-          return;
-        }
-
-        if (req.method === 'GET' && req.url === '/jeff-bezos.png') {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'image/png');
-          const image = fs.readFileSync('./public/jeff-bezos.png');
-          res.end(image);
-          return;
-        }
-
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/html');
-        res.end('404 not found');
-      } catch (error) {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/html');
-        res.end('404 not found');
-      }
-    });
-
     try {
-      App.HTTPServer.listen(App.interactiveWebPort, 'localhost', () => {
-        lib.console.web(`Servidor corriendo en: http://localhost:${App.interactiveWebPort}/`);
-        try {
-          let command = '';
-          const url = `http://localhost:${App.interactiveWebPort}/`;
-          switch (process.platform) {
-            case 'darwin': // macOS
-              command = `open ${url}`;
-              break;
-            case 'win32': // Windows
-              command = `start ${url}`;
-              break;
-            case 'linux': // Linux
-              command = `xdg-open ${url}`;
-              break;
-            default:
-              console.log('Unsupported platform');
-          }
-          exec(command, (error) => {
-            if (error) {
-              lib.console.web(`error' ${error}`);
-            }
-          });
-        } catch (error) {
-          lib.console.web(`error' ${error.message}`);
-        }
-      });
+      // limpiamos OBS
+      obsClient.clear();
+      obsClient.write('Aún no hay ningún ganador');
+
+      // inicializamos el servidor HTTP
+      App.HTTPServer = Server;
+      App.HTTPServer.handlers.addUser = App.handlersHTTP.addUser;
+      App.HTTPServer.handlers.dropMassiveKeyStart = App.handlersHTTP.dropMassiveKeyStart;
+      App.HTTPServer.handlers.startDropsKeysSubsToday = App.handlersHTTP.startDropsKeysSubsToday;
+      App.HTTPServer.handlers.reloadTable = App.handlersHTTP.reloadTable;
+      App.HTTPServer.handlers.reloadTableMassive = App.handlersHTTP.reloadTableMassive;
+      App.HTTPServer.handlers.dropKey = App.handlersHTTP.dropKey;
+      App.HTTPServer.connect(App.interactiveWebPort);
     } catch (error) {
-      lib.console.web(`error' ${error.message}`);
+      lib.console.server(error.message);
     }
-  },
-
-  startAutoDrop: () => {
-    // read the keys
-    const fileKeys = fs.readFileSync('./keys.txt', 'utf8');
-
-    // init the keys object
-    App.keys = fileKeys.split('\n').map((key) => ({
-      // code of key
-      code: key,
-      // winner's Twitch username
-      usernameTwitch: null,
-      // winner's Discord username
-      usernameDiscord: null,
-      // the winner's claimed the key
-      claimed: false,
-      droped: false,
-    }));
-
-    // init the loop of the function who will drop keys
-    if (!App.nIntervId) App.nIntervId = setInterval(App.dropKey, App.dropsMinutes * 1000 * 60);
-
-    App.nextDrop = Date.now() + App.dropsMinutes * 1000 * 60;
-    App.listentMessagesInTwitch();
-    twitchClient.onSubscription(({ username, userstate }) => {
-      App.users.set(username, lib.getMonthsSubscribed(userstate));
-    });
   },
 
   startDropsKeysSubsToday: () => {
-    if (App.IsStartDropsKeysSubsToday) return;
-    App.IsStartDropsKeysSubsToday = true;
-    lib.console.web('Esperando subscripciones...');
-    twitchClient.onSubscription(({ username, userstate }) => {
-      App.WriteDropLog(userstate['system-msg'], username, 1, 'onSubscription');
-      App.addUser(username, 1, null);
-    });
-    twitchClient.onGiftSubscription(({ username, tags }) => {
-      App.WriteDropLog(tags['system-msg'], username, 1, 'onGiftSubscription');
-      App.addUser(username, 1, tags['msg-param-origin-id']);
-    });
-    twitchClient.onGiftRandomSubscription(({ username, streakMonths, methods }) => {
-      App.WriteDropLog(methods['system-msg'], username, streakMonths, 'onGiftRandomSubscription');
-      App.addUser(username, streakMonths, methods['msg-param-origin-id'], true);
-    });
-    twitchClient.onReSubscription(({ username, tags }) => {
-      App.WriteDropLog(tags['system-msg'], username, 1, 'onReSubscription');
-      App.addUser(username, 1, null);
-    });
+    try {
+      // verificamos si ya se inicializo el dropeo de claves
+      if (App.IsStartDropsKeysSubsToday) return;
+      App.IsStartDropsKeysSubsToday = true;
 
-    // twitchClient.onMessage(({ tags }) => {
-    //   App.addUser(tags.username, 1, null);
-    // });
+      lib.console.web('Esperando subscripciones...');
+
+      twitchClient.onSubscription(({ username, userstate }) => {
+        App.WriteDropLog(userstate['system-msg'], username, 1, 'onSubscription');
+        App.addUser(username, 1, null);
+      });
+
+      twitchClient.onGiftSubscription(({ username, tags }) => {
+        App.WriteDropLog(tags['system-msg'], username, 1, 'onGiftSubscription');
+        App.addUser(username, 1, tags['msg-param-origin-id']);
+      });
+
+      twitchClient.onGiftRandomSubscription(({ username, streakMonths, methods }) => {
+        App.WriteDropLog(methods['system-msg'], username, streakMonths, 'onGiftRandomSubscription');
+        App.addUser(username, streakMonths, methods['msg-param-origin-id'], true);
+      });
+
+      twitchClient.onReSubscription(({ username, tags }) => {
+        App.WriteDropLog(tags['system-msg'], username, 1, 'onReSubscription');
+        App.addUser(username, 1, null);
+      });
+    } catch (error) {
+      lib.console.server(error.message);
+    }
   },
 
   WriteDropLog: (msg, name, month, type) => {
-    let message = '';
-    lib.console.participant(msg);
-    switch (type) {
-      case 'onSubscription':
-        if (msg.includes('Prime.')) {
-          message = `${App.sources.svg.prime}${name} se subscribió con el Prime`;
-        } else {
-          message = `${App.sources.svg.sub}${name} se subscribió`;
-        }
-        break;
-      case 'onGiftSubscription':
-        if (msg.match(/(?:sub\sto\s(\w+)!(?:\s.*!)*$)/)) {
-          message = `${App.sources.svg.gift}${name} regaló una sub a ${msg.match(/(?:sub\sto\s(\w+)!(?:\s.*!)*$)/)[1]}`;
-        } else {
-          message = `${App.sources.svg.gift}${name} regaló una sub`;
-        }
-        break;
-      case 'onGiftRandomSubscription':
-        if (msg.match(/gifting\s(\d+)\s/)) {
-          message = `${App.sources.svg.gift}${name} regaló ${msg.match(/gifting\s(\d+)\s/)[1]} subs`;
-        } else {
-          message = `${App.sources.svg.gift}${name} regaló unas subs`;
-        }
-        break;
-      case 'onReSubscription':
-        if (msg.includes('Prime.')) {
-          message = `${App.sources.svg.prime}${name} se resubscribió con el Prime`;
-        } else {
-          message = `${App.sources.svg.sub}${name} se resubscribió`;
-        }
-        break;
-      case 'onforce':
-        message = `${App.sources.svg.force} El baito dijo que ${name} participa`;
-        break;
-      default:
-        message = `${name} está participando`;
-        break;
-    }
+    try {
+      let message = '';
+      lib.console.twitch(msg);
+      switch (type) {
+        case 'onSubscription':
+          if (msg.includes('Prime.')) {
+            message = `${App.sources.svg.prime}${name} se subscribió con el Prime`;
+          } else {
+            message = `${App.sources.svg.sub}${name} se subscribió`;
+          }
+          break;
+        case 'onGiftSubscription':
+          if (msg.match(/(?:sub\sto\s(\w+)!(?:\s.*!)*$)/)) {
+            message = `${App.sources.svg.gift}${name} regaló una sub a ${msg.match(/(?:sub\sto\s(\w+)!(?:\s.*!)*$)/)[1]}`;
+          } else {
+            message = `${App.sources.svg.gift}${name} regaló una sub`;
+          }
+          break;
+        case 'onGiftRandomSubscription':
+          if (msg.match(/gifting\s(\d+)\s/)) {
+            message = `${App.sources.svg.gift}${name} regaló ${msg.match(/gifting\s(\d+)\s/)[1]} subs`;
+          } else {
+            message = `${App.sources.svg.gift}${name} regaló unas subs`;
+          }
+          break;
+        case 'onReSubscription':
+          if (msg.includes('Prime.')) {
+            message = `${App.sources.svg.prime}${name} se resubscribió con el Prime`;
+          } else {
+            message = `${App.sources.svg.sub}${name} se resubscribió`;
+          }
+          break;
+        case 'onforce':
+          message = `${App.sources.svg.force} El baito dijo que ${name} participa`;
+          break;
+        default:
+          message = `${name} está participando`;
+          break;
+      }
 
-    // console.log(message);
-    App.onceDropLog += `${message}\n`;
+      App.onceDropLog += `${message}\n`;
+    } catch (error) {
+      lib.console.server(error.message);
+    }
   },
   addUser: async (username, month, id, isRandom = false) => {
-    if (!App.runOnceDrop) return;
+    try {
+      if (!App.runOnceDrop) return;
 
-    const user = App.users.get(username);
-    if (!user) {
-      App.users.set(username, {
-        numberOfShares: month,
-        ids: id ? [id] : [],
-      });
-      return;
+      const user = App.users.get(username);
+
+      // es un viewer nuevo
+      if (!user) {
+        App.users.set(username, {
+          numberOfShares: month,
+          ids: id ? [id] : [],
+        });
+        return;
+      }
+
+      // Verificamos si esa sub es una regalada
+      if (id && !isRandom && user.ids.includes(id)) return;
+
+      // Verificamos si es una sub random regalada
+      if (id && isRandom && user.ids.includes(id)) user.numberOfShares -= 1;
+
+      user.numberOfShares += month;
+      if (id) {
+        user.ids.push(id);
+      }
+      App.users.set(username, user);
+    } catch (error) {
+      lib.console.server(error.message);
     }
-
-    // check if is this gift is a GiftRandomSubscription content
-    if (id && !isRandom && user.ids.includes(id)) return;
-
-    // remove the "single subscription"
-    if (id && isRandom && user.ids.includes(id)) {
-      user.numberOfShares -= 1;
-    }
-
-    user.numberOfShares += month;
-    if (id) {
-      user.ids.push(id);
-    }
-    App.users.set(username, user);
   },
   connectOBS: async (password) => {
     await obsClient.connect(password);
@@ -384,199 +185,197 @@ const App = {
   connectTwitch: async (chanel, username, password) => {
     await twitchClient.connect(chanel, username, password);
   },
-  connectDiscord: async (token, channel) => {
-    await DiscordClient.connect(token, channel);
-  },
   // drop the next key
   dropKey: async () => {
-    // calculate the time when will have a new drop
-    App.nextDrop = Date.now() + App.dropsMinutes * 1000 * 60;
-
-    let users = [];
-
-    // calculate ponderations
-    switch (App.ponderate) {
-      case 'COMUNISTA':
-        App.users.forEach((_, k) => {
-          users = users.concat(k);
-        });
-        break;
-      case 'CAPITALISTA':
-        App.users.forEach((v, k) => {
-          users = users.concat(v > 1 ? [k, k] : [k]);
-        });
-        break;
-      case 'OLIGARQUIA':
-        App.users.forEach((v, k) => {
-          users = users.concat(new Array(v).fill(k));
-        });
-        break;
-      default:
-        process.exit();
-    }
-
-    // get a random index to get a new winner
-    const rand = lib.randomIntFromInterval(0, users.length - 1);
-
-    // get the next key unassigned
-    const getLastUnlinkedKey = App.keys.findIndex((key) => !key.dropped);
-
-    const discordUsername = App.discordNames.get(users[rand]);
-    const discordID = App.discordUsersCache.get(discordUsername);
-    let claimed = false;
-    if (discordUsername && discordID) {
-      claimed = true;
-      const message = `Código: ${App.keys[getLastUnlinkedKey].code}`;
-      DiscordClient.sendMessage(discordID, message);
-    }
-
-    if (process.env.WEB_TOKEN && process.env.WEB_URL) {
-      axios.post(process.env.WEB_URL, {
-        key: App.keys[getLastUnlinkedKey].code,
-        username: users[rand],
-        hash: process.env.WEB_TOKEN,
-      });
-    }
-
-    // update the key
-    App.keys[getLastUnlinkedKey] = {
-      // data not updated
-      ...App.keys[getLastUnlinkedKey],
-      // username in Twitch
-      usernameTwitch: users[rand],
-      // username in Discord
-      usernameDiscord: App.discordNames.get(users[rand]) ?? null,
-      dropped: true,
-      claimed,
-    };
-
-    App.keysDropped += 1;
-    App.lastWin = users[rand];
-
-    const participants = App.users.size;
-    const probabilty = (100 * (App.users.get(App.lastWin) / users.length)).toFixed(2);
-    App.countDrops += 1;
-
-    // check if need it clear the list of participants
-    if (App.clearListSelecction && App.countDrops >= App.clearAfterXDrops) {
-      App.countDrops = 0;
-      App.users = new Map();
-    }
-    App.updateConsole();
-
-    // update the file with the winners
-    fs.writeFileSync('./winners.txt', lib.renderWinners(App.keys));
-
-    // update OBS message
-    App.writeOBS(probabilty, participants);
-
-    // finish proccess
-    if (App.keysDropped === App.keys.length) {
-      clearInterval(App.nIntervId);
-      App.showMenu();
-    }
-  },
-  // listen a new message in the Discord chanel
-  messageDiscord: (msg) => {
     try {
-      // get a username: somename#1234
-      const usernameDiscord = `${msg.author.username}#${msg.author.discriminator}`;
+      // calculate the time when will have a new drop
+      App.nextDrop = Date.now() + App.dropsMinutes * 1000 * 60;
 
-      // check if the user has an unclaimed key
-      // const keyIndex = App.keys.findIndex((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
-      const keys = App.keys.filter((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
+      let users = [];
 
-      // the user hasn't won any keys or hasn't linked their Discord account with a Twitch user
-      if (!keys.length) {
-        App.discordUsersCache.set(usernameDiscord, msg.author.id);
-        msg.reply(
-          // eslint-disable-next-line max-len, prettier/prettier
-          `Si has ganado una clave por favor ve a https://www.twitch.tv/${process.argv[2] ?? process.env.TWITCH_CHANNEL} y escribe en el chat **!link ${usernameDiscord}**`
-        );
-        return;
+      // calculate ponderations
+      switch (App.ponderate) {
+        case 'COMUNISTA':
+          App.users.forEach((_, k) => {
+            users = users.concat(k);
+          });
+          break;
+        case 'CAPITALISTA':
+          App.users.forEach((v, k) => {
+            users = users.concat(v > 1 ? [k, k] : [k]);
+          });
+          break;
+        case 'OLIGARQUIA':
+          App.users.forEach((v, k) => {
+            users = users.concat(new Array(v).fill(k));
+          });
+          break;
+        default:
+          process.exit();
       }
 
-      // response the message in the chanel
-      msg.reply(`VAMOOOOOOOOOOOOO\n Felicidades @${keys[0].usernameTwitch}`);
+      // get a random index to get a new winner
+      const rand = lib.randomIntFromInterval(0, users.length - 1);
 
-      // send a key via DM in Discord
-      msg.author.send(keys.reduce((acc, key) => `${acc}Código: ${key.code}\n`, ''));
+      const lastWin = users[rand];
+      App.lastWin = lastWin;
 
-      // set the key claimed
-      App.keys.forEach((key, index) => {
-        if (key.usernameDiscord === usernameDiscord) {
-          App.keys[index].claimed = true;
-        }
-      });
+      // update the key
+      App.winnersMassive.push(lastWin);
+
+      App.keysDropped += 1;
+
+      const participants = App.users.size;
+      const probabilty = (100 * (App.users.get(App.lastWin) / users.length)).toFixed(2);
+      App.countDrops += 1;
+
+      // check if need it clear the list of participants
+      if (App.clearListSelecction && App.countDrops >= App.clearAfterXDrops) {
+        App.countDrops = 0;
+        App.users = new Map();
+      }
+      App.updateConsole();
+
+      // update the file with the winners
+      fs.appendFileSync('./winners.txt', `\n${lastWin}`);
+      lib.console.participant(`"${lastWin}" ganó una clave`);
+
+      // update OBS message
+      App.writeOBS(probabilty, participants);
     } catch (error) {
-      console.log('messageDiscord: ', error.message);
+      lib.console.server(error.message);
     }
   },
   writeOBS: async (probabilty, participants) => {
-    const points = App.users.get(App.lastWin);
-    let text = '';
-    if (App.textToShow.includes('NOMBRE_GANADOR')) text += `Ultimo ganador: "${App.lastWin}"`;
+    try {
+      const points = App.users.get(App.lastWin);
+      let text = '';
+      text += `Ultimo ganador: "${App.lastWin}"`;
 
-    if (App.textToShow.includes('MESES_SYBSCRIPTO'))
-      // eslint-disable-next-line no-nested-ternary
-      text += ` (${App.lastWin ? (points > 1 ? `${points - 1} Meses` : 'Plebe') : ''})`;
+      if (App.textToShow.includes('MESES_SYBSCRIPTO'))
+        // eslint-disable-next-line no-nested-ternary
+        text += ` (${App.lastWin ? (points > 1 ? `${points - 1} Meses` : 'Plebe') : ''})`;
 
-    if (App.textToShow.includes('KEYS_RESTANTES')) text += ` [Drops: ${App.keysDropped}/${App.keys.length}]`;
+      if (App.textToShow.includes('PROBABILIDAD')) text += ` ${probabilty}%`;
 
-    if (App.textToShow.includes('PROBABILIDAD')) text += ` ${probabilty}%`;
+      if (App.textToShow.includes('CANTIDAD_PARTICIPANTES')) text += ` Cantidad de participantes: ${participants}`;
 
-    if (App.textToShow.includes('CANTIDAD_PARTICIPANTES')) text += ` Cantidad de participantes: ${participants}`;
+      obsClient.write(text);
+    } catch (error) {
+      lib.console.server(error.message);
+    }
 
-    obsClient.write(text);
   },
   listentMessagesInTwitch: () => {
-    App.updateConsole();
-    twitchClient.onMessage(({ tags, message }) => {
-      // add the user in the participants list
-      if (!App.users.has(tags.username)) App.users.set(tags.username, lib.getMonthsSubscribed(tags));
-
-      // if (/^!drop/.test(message))
-      //   twitchClient.sendMessage(channel, `@${tags.username} proximo drop en ${lib.getNextDrop(App.nextDrop)} (${App.users.size} participando)`);
-
-      // command to link the Twitch username with Discord username
-      const match = message.match(/!link\s(\w+#\d+)/);
-
-      if (match) {
-        const [, usernameDiscord] = match;
-        App.discordNames.set(tags.username, usernameDiscord);
-        // check if exist in cache
-        const id = App.discordUsersCache.get(usernameDiscord);
-
-        // update all keys who has win this user
-        App.keys.forEach((key, i) => {
-          if (key.usernameTwitch === tags.username) {
-            App.keys[i].usernameDiscord = usernameDiscord;
-          }
-        });
-
-        const keys = App.keys.filter((key) => key.usernameDiscord === usernameDiscord && !key.claimed);
-        if (id && keys.length) {
-          // get all keys
-          const message = keys.reduce((acc, key) => `${acc}Código: ${key.code}\n`, '');
-          App.keys.forEach((key, index) => {
-            if (key.usernameDiscord === usernameDiscord) {
-              App.keys[index].claimed = true;
-            }
-          });
-          DiscordClient.sendMessage(id, message);
-        }
-      }
+    try {
       App.updateConsole();
-    });
+      twitchClient.onMessage(({ tags, message }) => {
+        // add the user in the participants list
+        let numberOfShares = 1;
+        // calculate ponderations
+        switch (App.ponderate) {
+          case 'COMUNISTA':
+            numberOfShares = 1;
+            break;
+          case 'CAPITALISTA':
+            numberOfShares = 2;
+            break;
+          case 'OLIGARQUIA':
+            numberOfShares = lib.getMonthsSubscribed(tags)
+            break;
+          default:
+            process.exit();
+        }
+
+        if (!App.users.has(tags.username)) App.users.set(tags.username, {
+          numberOfShares,
+          ids: [1],
+        });
+        App.updateConsole();
+      });
+    } catch (error) {
+      lib.console.server(error.message);
+    }
   },
   updateConsole: () => {
-    console.log(`Participantes: ${App.users.size}, Keys dropeadas: ${App.keysDropped}/${App.keys.length}`);
+    // console.log(`Participantes: ${App.users.size}, Keys dropeadas: ${App.keysDropped}`);
   },
   showMenu: async () => {
-    const stdin = process.openStdin();
-    stdin.addListener('data', () => {
-      console.log(App.users);
-    });
+    try {
+      const stdin = process.openStdin();
+      stdin.addListener('data', () => {
+        lib.console.server(`Cantidad de participantes: ${App.users.size}`);
+      });
+    } catch (error) {
+      lib.console.server(error.message);
+    }
+  },
+  handlersHTTP: {
+    addUser: (username, numbershares) => {
+      try {
+        App.WriteDropLog(`El baito dijo que ${username} participa`, username, +numbershares, 'onforce');
+        App.addUser(username, +numbershares, null);
+      } catch (error) {
+        lib.console.web(error.message);
+      }
+    },
+    dropMassiveKeyStart: ({ textToShow, dropsMinutes, ponderate, clearListSelecction, clearAfterXDrops }) => {
+      try {
+        App.textToShow = textToShow;
+        App.dropsMinutes = dropsMinutes;
+        App.ponderate = ponderate;
+        App.clearListSelecction = clearListSelecction;
+        App.clearAfterXDrops = clearAfterXDrops;
+
+        fs.appendFileSync('./winners.txt', `\n${new Date()}`);
+
+        // inicializamos el loop para el dropeo
+        if (!App.nIntervId) App.nIntervId = setInterval(App.dropKey, App.dropsMinutes * 1000 * 60);
+
+        App.nextDrop = Date.now() + App.dropsMinutes * 1000 * 60;
+        App.listentMessagesInTwitch();
+      } catch (error) {
+        lib.console.web(error.message);
+      }
+    },
+    startDropsKeysSubsToday: () => {
+      try {
+        App.startDropsKeysSubsToday();
+      } catch (error) {
+        lib.console.web(error.message);
+      }
+
+    },
+    reloadTableMassive: () => ({
+      users: App.users,
+      winners: App.winnersMassive,
+    }),
+    reloadTable: () => ({
+      users: App.users,
+      onceDropLog: App.onceDropLog,
+    }),
+    dropKey: () => {
+      try {
+        const winners = [];
+        let users = [];
+        App.users.forEach((v, k) => {
+          users = users.concat(new Array(v.numberOfShares).fill(k));
+        });
+        users = users.filter((e) => !App.winners.includes(e));
+        while (winners.length < 2 && users.length > 0) {
+          const rand = lib.randomIntFromInterval(0, users.length - 1);
+          winners.push(users[rand]);
+          App.winners.push(users[rand]);
+          // eslint-disable-next-line no-loop-func
+          users = users.filter((e) => e !== users[rand]);
+        }
+        lib.console.participant(`"${winners[0]}" Ganó la primera clave. Suplente: "${winners[1]}"`);
+        return winners;
+      } catch (error) {
+        lib.console.web(error.message);
+        return [];
+      }
+    },
   },
 };
 

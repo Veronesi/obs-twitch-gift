@@ -6,6 +6,10 @@ export default function WebHome() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BaityBait</title>
     <style>
+          html {
+        background-color: #111;
+        color: #eee;
+      }
         * {
             font-family: Inter, Roobert, "Helvetica Neue", Helvetica, Arial, sans-serif;
             padding: 0;
@@ -47,7 +51,7 @@ export default function WebHome() {
         }
     </style>
 </head>
-<body style="min-height: 100vh; display: flex; justify-content: center; align-items: center;background-image: url('jeff-bezos.png');">
+<body style="min-height: 100vh; display: flex; justify-content: center; align-items: center;">
   <div style="max-width: 700px; margin: 0 auto;display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h3 style="display: flex; justify-content: center; align-items: center;">
       <img src="image.png" style="margin-bottom: 1em;height: 10em; width: 10em;" />

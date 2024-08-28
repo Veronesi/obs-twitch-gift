@@ -5,6 +5,10 @@ export default function WebDropMassiveConfig() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BaityBait</title>
   <style>
+      html {
+        background-color: #111;
+        color: #eee;
+      }
       * {
           font-family: Inter, Roobert, "Helvetica Neue", Helvetica, Arial, sans-serif;
           padding: 0;
@@ -97,14 +101,14 @@ label {
         <label for="">Utilizar ponderación</label>
         <ul>
           <li><input name="ponderate" type="radio" value="COMUNISTA"> Comunista: todos tienen la misma chance</li>
-          <li><input name="ponderate" type="radio" value="CAPITALISTA"> Capitalista: Los subs tienen x2 chance</li>
+          <li><input name="ponderate" checked type="radio" value="CAPITALISTA"> Capitalista: Los subs tienen x2 chance</li>
           <li><input name="ponderate" type="radio" value="OLIGARQUIA"> Oligarquia: una chance mas por cada mes subscripto</inpu></li>
         </ul>
       </div>
       <div class="form-control">
         <label for="">Actualizar la lista de participantes</label>
         <ul>
-          <li><input name="clearListSelecction" value="NUNCA_BORRAR" type="radio"> Una vez que hacen un comentario, participarán toda la sesión</li>
+          <li><input name="clearListSelecction" checked value="NUNCA_BORRAR" type="radio"> Una vez que hacen un comentario, participarán toda la sesión</li>
           <li><input name="clearListSelecction" value="BORRAR_TIEMPO" type="radio"> Limiar la lista de participantes cada X drops</inpu></li>
           <li><input name="clearListSelecction" value="BORRAR_POR_CADA_DROP" type="radio"> Limpiar la lista cada vez que se dropea una clave</li>
         </ul>
@@ -174,9 +178,6 @@ document.querySelector('#send').onclick = () => {
     .then(res => {
       if(res) location.href = "/drop-massive-keys";
     })
-
-  // console.log(body);
-  // console.log(new URLSearchParams(body).toString());
 }
 
 </script>

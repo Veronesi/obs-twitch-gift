@@ -29,7 +29,7 @@ const OBS = {
       } else {
         lib.console.obs(error.message);
       }
-      process.exit();
+      // process.exit();
     }
   },
   clear: () => {

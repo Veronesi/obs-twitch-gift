@@ -6,26 +6,45 @@ export default function WebDropSubsToday() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BaityBait</title>
     <style>
+      html {
+        background-color: #111;
+        color: #eee;
+      }
         * {
             font-family: Inter, Roobert, "Helvetica Neue", Helvetica, Arial, sans-serif;
             padding: 0;
             margin: 0;
         }
 
-        tr > * {
+        thead tr > * {
           text-align: center;
           height: 2em;
-          border: solid 1px #f2f2f2;
+          border: solid 1px #9047ff;
           padding: 0;
           margin: 0;
         }
 
+        tbody tr td {
+        font-size: 11px;
+        margin-top: 1em;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: .2em .5em;
+        }
+
+        tbody tr td span {
+          padding: .5em 1em;
+          background-color: #555;
+          border-radius: .5em;
+        }
+
         tr:nth-child(odd) {
-          background-color: #fff;
+          background-color: #111;
         }
 
         tr:nth-child(even) {
-          background-color: #f2f2f2;
+          background-color: #222;
         }
 
         .d-none {
@@ -41,9 +60,10 @@ export default function WebDropSubsToday() {
 
         .message-container span {
           display: block;
+          font-size: 11px;
           padding: .3em .6em;
           margin: .3em 0px;
-          background: #ddd;
+          background: #555;
           border-radius: .5em;
           display: flex;
           align-items: center;
@@ -59,7 +79,7 @@ export default function WebDropSubsToday() {
 }
     </style>
 </head>
-<body style="max-width: 700px; margin: 0 auto;display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; width: 100vw;background-image: url('jeff-bezos.png');">
+<body style="max-width: 700px; margin: 0 auto;display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; width: 100vw;">
   <h3 style="display: flex; justify-content: center; align-items: center;margin-top: 1em;">
   <img src="image.png" style="margin-bottom: 1em;height: 10em; width: 10em;" />
   </h3>
@@ -71,7 +91,7 @@ export default function WebDropSubsToday() {
   <h1 style="margin-bottom: 1em; text-align: center;">Participantes: <span id="participantes">0</span> - Puntos totales: <span id="participaciones">0</span></h1>
   <div id="main">
   <div style="display: flex; min-width: 38em; justify-content: space-between;">
-    <button style="cursor: pointer;border: solid 1px #9047ff; color: #9047ff; text-decoration: none; padding: .5em 2em; border-radius: .3em;background: #fff; font-weight: 900;" id="reload-table">Actualizar la tabla automaticamente</button>
+    <button style="cursor: pointer;border: solid 1px #9047ff; color: #9047ff; text-decoration: none; padding: .5em 2em; border-radius: .3em;background: #fff; font-weight: 900;" id="reload-table">Actualizar tabla</button>
     <button style="cursor: pointer;background-color: #9047ff; color: #fff; text-decoration: none; padding: .5em 2em; border-radius: .3em; border: none;font-weight: 900;" id="drop-key">Sortear clave</button>
   </div>
     </div>
@@ -79,47 +99,44 @@ export default function WebDropSubsToday() {
       <h2 style="font-weight: 900;">Ganador</h2>
       <h2 style="font-weight: 900;">Suplente</h2>
   </div>
-  <div style="width: 968px; display: grid; grid-template-columns: 1fr 27em; gap: 1em; margin-top: 1em; margin-bottom: 5em;align-items: start;">
+  <div style="width: 968px; display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 1em; margin-top: 1em; margin-bottom: 5em;align-items: start;">
     <table style="border-collapse: collapse;">
       <thead style="background: #9047ff; color: #fff;">
           <tr style="background: #9047ff;">
-          <th>Usuario</th>
-          <th>Puntos</th>
+          <th>Participantes</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td colspan="2">Aun no hay nadie participando</td></tr>
+        <tr><td colspan="1">Aun no hay nadie participando</td></tr>
       </tbody>
     </table>
-    <div class="message-container" style="background: #f5f5f5; padding: .4em; border-radius: 1em; border: solid 1px #eee;">
+    <div class="message-container" style="background: #222; padding: .4em; border-radius: 1em; border: solid 1px #eee;">
       <span>Esperando subs...</span>
     </div>
   </div>
 <script>
-  let nInterval;
     const reloadTable = () => {
     fetch('/reload-table')
       .then(res => res.json())
       .then(res => {
         const tbody = document.querySelector('tbody');
         if(!res.users.length) return;
-        document.querySelector('.message-container').innerHTML = res.logs.reduce((acc, e) => acc + \`<span>\${e}</span>\`, '')
-        tbody.innerHTML = res.users.reduce((acc, e) => acc + \`<tr><td>\${e.username}</td><td>\${e.numberOfShares}</td></tr>\`, '')
+        if (res.logs.length) {
+                document.querySelector('.message-container').innerHTML = res.logs.reduce((acc, e) => acc + \`<span>\${e}</span>\`, '')
+        }
+        if (res.users.length) {
+                tbody.innerHTML = "<tr><td>"+res.users.reduce((acc, e) => acc + \`<span>\${e.username} [\${e.numberOfShares}]</span>\`, '')+"</td><td>";
+        }
         document.querySelector('#participantes').innerHTML = res.users.length;
         document.querySelector('#participaciones').innerHTML = res.users.reduce((acc, e) => acc + e.numberOfShares , 0);
         })
       .catch(er => {
         console.log(er);
-          clearInterval(nInterval);
-        nInterval = null;
       })
     }
   reloadTable();
-  // nInterval = setInterval(reloadTable, 10 * 60 * 1000);
 
   document.querySelector('#drop-key').onclick = () => {
-      clearInterval(nInterval);
-      nInterval = null;
     // document.querySelector('#drop-key').remove(); 
     fetch('/drop-key')
       .then(res => res.json())
@@ -142,15 +159,7 @@ export default function WebDropSubsToday() {
     }
 
   document.querySelector('#reload-table').onclick = () => {
-    if(nInterval) {
-      document.querySelector('#reload-table').innerHTML = "Actualizar la tabla automaticamente";
-      clearInterval(nInterval);
-      nInterval = null;
-      return;
-    }
-      
-      document.querySelector('#reload-table').innerHTML = "Pausar la actualización de la tabla";
-      nInterval = setInterval(reloadTable, 5000);
+      reloadTable();
     }
 
     document.querySelector('#add-user').onclick = () => {

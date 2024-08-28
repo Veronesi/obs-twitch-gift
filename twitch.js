@@ -30,6 +30,7 @@ const twitch = {
         channels: [chanel],
       });
       await twitch.client.connect();
+
       lib.console.twitch(`@${username} conectado exitosamente al canal /${chanel}`);
     } catch (error) {
       lib.console.twitch(error.message);

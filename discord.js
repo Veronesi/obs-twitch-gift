@@ -45,7 +45,7 @@ const Discord = {
       return null;
     }
   },
-  listenMessages: (fn = () => {}) => {
+  listenMessages: (fn = () => { }) => {
     if (!Discord.enable) {
       return;
     }
@@ -65,7 +65,7 @@ const Discord = {
     try {
       Discord.client.users.fetch(id, false).then((user) => user.send(message));
     } catch (error) {
-      console.log(error.message);
+      lib.console.discord(error.message);
     }
   },
 };
