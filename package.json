@@ -1,17 +1,14 @@
 {
   "name": "obs-twitch-gift",
   "version": "1.0.0",
-  "type": "module",
   "description": "gift codes in twitch for obs studio",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "discord": "node discord.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format:check": "prettier --check .",
-    "format:write": "prettier --write .",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "start": "node dist/index.js",
+    "dev": "ts-node -r tsconfig-paths/register src/index.ts",
+    "dev:ts": "ts-node src/index.ts",
+    "build": "tsc && cp -R ./src/assets ./dist/assets",
+    "build-babel": "babel src --extensions \".ts,.js\" --out-dir dist --copy-files"
   },
   "repository": {
     "type": "git",
@@ -31,11 +28,17 @@
     "eslint-config-prettier": "^8.8.0",
     "inquirer": "^9.1.5",
     "obs-websocket-js": "^5.0.2",
-    "prettier": "^2.8.7",
     "tmi.js": "^1.8.5"
   },
   "devDependencies": {
-    "eslint": "^8.38.0",
-    "eslint-plugin-prettier": "^4.2.1"
+    "@types/tmi.js": "^1.8.6",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-hexagonal-architecture": "^1.0.3",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^3.3.3",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.4"
   }
 }

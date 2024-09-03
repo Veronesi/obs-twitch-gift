@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      /* width: 100vw;
+      height: 100vh; */
+      background-color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas">
+  </canvas>
+</body>
+<script>
+  const $canvas = document.querySelector("#canvas");
+  // const INTEGER_SCALING = true;
+  $canvas.width = window.innerWidth;
+  $canvas.height = window.innerHeight;
+  function resizeCanvas() {
+    $canvas.width = window.innerWidth;
+    $canvas.height = window.innerHeight;
+    // let scale = Math.min(
+    //   window.innerWidth / $canvas.width,
+    //   window.innerHeight / $canvas.height
+    // );
+    // if (INTEGER_SCALING) {
+    //   scale = Math.floor(scale);
+    // }
+    // $canvas.style.width = `${Math.round(scale * $canvas.width)}px`;
+    // $canvas.style.height = `${Math.round(scale * $canvas.height)}px`;
+  }
+
+  resizeCanvas();
+  // window.addEventListener("resize", resizeCanvas);
+
+  const ctx = $canvas.getContext("2d");
+  ctx.font = "15px Inter";
+
+  const interval = setInterval(() => {
+    refresh();
+  }, 1000);
+
+  const refresh = () => {
+    fetch('/twitch-plays/get-messages')
+      .then(res => res.json())
+      .then(res => {
+        ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+        res.messages.forEach((message, position) => {
+          ctx.fillStyle = "#ccc";
+          ctx.fillRect($canvas.width / 2, position * 20, 300 * message.counter / res.messages.length, 19);
+          ctx.fillText(`[${message.counter}] ${message.message}`, 20, position * 20 + 20);
+        })
+      })
+
+  }
+</script>
+
+</html>
