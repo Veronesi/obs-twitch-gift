@@ -35,6 +35,7 @@ export class GiftSubsController extends HttpController {
   participants: Participant[] = [];
   history: History[] = [];
   enable: boolean = false;
+  winners: string[] = [];
   constructor(SubscribeTwitch: SubscribeTwitch) {
     super();
     this.SubscribeTwitch = SubscribeTwitch;
@@ -44,16 +45,69 @@ export class GiftSubsController extends HttpController {
   start: FunctionRouter = (req, res) => {
     try {
       if (this.enable) {
-        this.html(res, 'src/public/html/gift-subs/home.html');
+        this.enable = false;
+        this.json(res, { success: true, message: 'Aguanta amigo, ya está escaneando' })
+        // this.html(res, 'src/public/html/gift-subs/home.html');
         return;
       }
+      terminal.server('Dropkey inicializado correctamente');
       this.Subscribe.execute({ onSubscription: this.onSubscription, onReSubscription: this.onReSubscription, onGiftSubscription: this.onGiftSubscription, onGiftRandomSubscription: this.onGiftRandomSubscription });
       this.enable = true;
-      terminal.server('gift subs start successfully')
-      this.html(res, 'src/public/html/gift-subs/home.html');
+      this.json(res, { success: true, message: 'Esperando subscripciones...' })
+      // this.html(res, 'src/public/html/gift-subs/home.html');
     } catch (error: any) {
-      this.html(res, 'src/public/html/gift-subs/home.html');
+      this.json(res, { success: false, message: error.message })
+      // this.html(res, 'src/public/html/gift-subs/home.html');
       terminal.server(error.message);
+    }
+  }
+
+  dropKey: FunctionRouter = (req, res) => {
+    try {
+      let users: Array<string> = [];
+      const winners = ['', ''];
+      this.participants.forEach(e => users = [...users, ...Array(e.counter).fill(e.username)]);
+
+      // verificamos si ya gano
+      users = users.filter(user => !this.winners.includes(user));
+
+      // obtenemos ganador
+      const numberWinner = parseInt(String(Math.random() * users.length));
+      users[numberWinner];
+
+      this.winners.push(users[numberWinner]);
+      winners[0] = users[numberWinner];
+
+      // lo eliminamos de los participantes
+      users = users.filter(user => user != users[numberWinner]);
+
+      // obtenemos el suplente
+      const numberSupplent = parseInt(String(Math.random() * users.length));
+      users[numberSupplent];
+
+      this.winners.push(users[numberSupplent]);
+      winners[1] = users[numberSupplent];
+
+      this.json(res, { success: true, winners: winners })
+
+    } catch (error: any) {
+      this.json(res, { message: error.message });
+    }
+  }
+
+  state: FunctionRouter = (req, res) => {
+    try {
+      const winners = [];
+      for (let i = 0; i < this.winners.length - 1; i += 2) {
+        winners.push([this.winners[i], this.winners[i + 1]])
+      }
+      this.json(res, {
+        success: true,
+        enable: this.enable,
+        winners
+      });
+    } catch (error: any) {
+      this.json(res, { success: false, error: error.message });
     }
   }
 

@@ -1,23 +1,28 @@
 import tmi from 'tmi.js';
 import { OnGiftRandomSubscription, OnGiftSubscription, OnMessage, OnReSubscription, OnSubscription, TwitchRepository } from "../domain/TwitchRepository";
+import { terminal } from 'src/shared/helper/terminal';
 
 export class TwitchTmiRepository extends TwitchRepository {
   client: tmi.Client;
 
   async connect(channel: string, username: string, password: string): Promise<void> {
-    this.client = new tmi.Client({
-      options: { debug: false },
-      connection: {
-        secure: true,
-        reconnect: true,
-      },
-      identity: {
-        username,
-        password,
-      },
-      channels: [channel],
-    });
-    await this.client.connect();
+    try {
+      this.client = new tmi.Client({
+        options: { debug: false },
+        connection: {
+          secure: true,
+          reconnect: true,
+        },
+        identity: {
+          username,
+          password,
+        },
+        channels: [channel],
+      });
+      await this.client.connect();
+    } catch (error: any) {
+      terminal.twitch(error);
+    }
   }
 
   onSubscription(fn: OnSubscription): void {

@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      body {
+        background-color: #1e4a46;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        color: #fff;
+        font-family: monospace;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      .window {
+        box-shadow: 15px 12px 0px 2px rgba(0, 0, 0, 0.29);
+        background: rgb(47, 47, 108);
+        background: linear-gradient(180deg, rgba(47, 47, 108, 1) 0%, rgba(31, 34, 85, 1) 50%, rgba(9, 9, 36, 1) 86%);
+        width: 30em;
+        height: 45em;
+        display: grid;
+        justify-content: stretch;
+        align-items: stretch;
+        padding: 1em;
+        .border {
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          justify-content: stretch;
+          position: relative;
+          border-radius: 0.7em;
+          border: solid 3px #39426a;
+          padding: 0 1em;
+
+          header {
+            opacity: 0.9;
+            margin-top: -0.5em;
+            background-color: #6b77af;
+            text-align: center;
+            color: #cecdd4;
+          }
+
+          .content {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            height: 100%;
+            padding: 1em;
+          }
+
+          footer {
+            display: flex;
+            gap: 1em;
+            justify-content: end;
+            align-items: center;
+          }
+
+          .table {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 0 1em;
+            align-items: end;
+            justify-content: center;
+
+            div {
+              border-bottom: dotted 1px #fff;
+              margin-bottom: 0.3em;
+            }
+          }
+        }
+      }
+
+      .btn {
+        background: rgb(45, 45, 101);
+        background: linear-gradient(180deg, rgba(45, 45, 101, 1) 0%, rgba(23, 26, 34, 1) 50%, rgba(45, 45, 101, 1) 100%);
+        border-radius: 0.3em;
+        padding: 0.5em 3em;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: rgb(45, 45, 101);
+        background: linear-gradient(180deg, rgba(45, 45, 101, 1) 0%, rgba(44, 53, 78, 1) 50%, rgba(45, 45, 101, 0.7087775735294117) 86%);
+      }
+      .te {
+        text-align: end;
+      }
+
+      .highlight {
+        color: yellow;
+      }
+    </style>
+  </head>
+  <body>
+    <h2 style="margin-bottom: 1em; font-weight: 100">Her Story</h2>
+    <section>
+      <article class="window">
+        <div class="border">
+          <header>CornerStone - [ClipD142-A.MPEG]</header>
+          <div class="content">
+            <div id="messages-container"></div>
+            <footer>
+              <span id="btn-refresh" class="btn">Reiniciar</span>
+              <span id="btn-stop" class="btn">Parar</span>
+            </footer>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <script>
+      const KEYWORDS = [
+        'Affair',
+        'Aventura',
+        'Argument',
+        'Discusion',
+        'Arrest',
+        'Arresto',
+        'Ask',
+        'Preguntar',
+        'Attic',
+        'atico',
+        'Baby',
+        'Bebe',
+        'Bags',
+        'Bolsas',
+        'Bar',
+        'Bar',
+        'Bedroom',
+        'Dormitorio',
+        'Birthday',
+        'Cumpleaños',
+        'Blonde',
+        'Rubia',
+        'rubio',
+        'Blood',
+        'Sangre',
+        'Bone',
+        'Hueso',
+        'Broken',
+        'Roto',
+        'Bruise',
+        'Moreton',
+        'Cat flap',
+        'Gatera',
+        'Car',
+        'Auto',
+        'Coche',
+        'Cellar',
+        'Sotano',
+        'Children',
+        'Niños',
+        'Climb',
+        'Trepar',
+        'Escalar',
+        'Coffee',
+        'Cafe',
+        'Conference',
+        'Conferencia',
+        'Confess',
+        'Confesar',
+        'Cooking',
+        'Cocinar',
+        'Crash',
+        'Accidente',
+        'Choque',
+        'Crazy',
+        'Loco loca',
+        'Dad',
+        'Papa',
+        'Dead',
+        'Muerto',
+        'muerta',
+        'Death Caps',
+        'Amanitas',
+        'hongos venenosos,',
+        'Diane',
+        'Diana',
+        'Diary',
+        'Diario',
+        'Divorce',
+        'Divorcio',
+        'Dollhouse',
+        'Casa de muñecas',
+        'Doug',
+        'Doug',
+        'Dreams',
+        'Sueños',
+        'Driving',
+        'Conduccion',
+        'Drove',
+        'Conduje',
+        'Condujo',
+        'Eleanor',
+        'Eleonor',
+        'Eliminate',
+        'Eliminar',
+        'Eric',
+        'Eric',
+        'Eve',
+        'Eva',
+        'Expense',
+        'Gasto',
+        'Fairy',
+        'Hada',
+        'Family',
+        'Familia',
+        'Fight',
+        'Pelea',
+        'Luchar',
+        'Fingerprints',
+        'Huellas dactilares',
+        'Florence',
+        'Florencia',
+        'Friday',
+        'Viernes',
+        'Friend',
+        'Amigo',
+        'amiga',
+        'Gift',
+        'Regalo',
+        'Glasgow',
+        'Glasgow',
+        'Glass',
+        'Vidrio',
+        'Cristal',
+        'Glasses',
+        'Gafas',
+        'Lentes',
+        'Glazier',
+        'Vidriero',
+        'vidriera',
+        'Gone',
+        'Desaparecido',
+        'Desaparecida',
+        'Guitar',
+        'Guitarra',
+        'Hair',
+        'Cabello',
+        'Pelo',
+        'Hannah',
+        'Hanna',
+        'Hit',
+        'Golpear',
+        'House',
+        'Casa',
+        'Hotel',
+        'Hotel',
+        'Husband',
+        'Esposo',
+        'Ill',
+        'Enfermo',
+        'Enferma',
+        'Important',
+        'Importante',
+        'Infertile',
+        'Infertil',
+        'Innocent',
+        'Inocente',
+        'Kill',
+        'Matar',
+        'Knock Code',
+        'Codigo de golpeteo',
+        'Lawyer',
+        'Abogado',
+        'Abogada',
+        'Lie Detector',
+        'Detector de mentiras',
+        'Life',
+        'Vida',
+        'Lock',
+        'Cerradura',
+        'Love',
+        'Amor',
+        'Morning',
+        'Mañana',
+        'Magic',
+        'Magia',
+        'Magical',
+        'Magico',
+        'Magica',
+        'Married',
+        'Casado',
+        'Casada',
+        'Marriage',
+        'Matrimonio',
+        'Match',
+        'Cerillo',
+        'Fosforo',
+        'Mirror',
+        'Espejo',
+        'Mother',
+        'Madre',
+        'Murder',
+        'Asesinato',
+        'Mushroom',
+        'Hongo',
+        'Seta',
+        'Name',
+        'Nombre',
+        'Nice',
+        'Agradable',
+        'Nursery',
+        'Guarderia',
+        'Page',
+        'Pagina',
+        'Parents',
+        'Padres',
+        'Police',
+        'Policia',
+        'Poison',
+        'Veneno',
+        'Pregnant',
+        'Embarazada',
+        'Prince',
+        'Principe',
+        'Princess',
+        'Princesa',
+        'Pub',
+        'Taberna',
+        'Bar',
+        'Rapunzel',
+        'Rapunzel',
+        'Reflection',
+        'Reflexion',
+        'Reflejo',
+        'Remember',
+        'Recordar',
+        'Rules',
+        'Reglas',
+        'Secret',
+        'Secreto',
+        'Seventeen',
+        'Diecisiete',
+        'Sex',
+        'Sexo',
+        'Share',
+        'Compartir',
+        'Simon',
+        'Simon',
+        'Sing',
+        'Cantar',
+        'Sister',
+        'Hermana',
+        'Sleep',
+        'Dormir',
+        'Sound',
+        'Sonido',
+        'Story',
+        'Historia',
+        'Street',
+        'Calle',
+        'Strong',
+        'Fuerte',
+        'Suspect',
+        'Sospechoso. Sospechosa',
+        'Suspicious',
+        'Sospechoso',
+        'Sospechosa',
+        'Sync',
+        'Sincronizar',
+        'Tattoo',
+        'Tatuaje',
+        'Taxi',
+        'Taxi',
+        'Tea',
+        'Te',
+        'Throat',
+        'Garganta',
+        'Thin',
+        'Delgado ,Delgada',
+        'Ticket',
+        'Boleto',
+        'Ticket',
+        'Tin',
+        'Lata',
+        'Trapped',
+        'Atrapado',
+        'Atrapada',
+        'Try',
+        'Intentar',
+        'Twin',
+        'Gemelo',
+        'Gemela',
+        'Watch',
+        'Reloj',
+        'Mirar',
+        'Wedding',
+        'Boda',
+        'Weird',
+        'Raro',
+        'Rara',
+        'Wife',
+        'Esposa',
+        'Wig',
+        'Peluca',
+        'Witch',
+        'Bruja',
+        'Woman',
+        'Mujer',
+        'KEKRO',
+        'CARL',
+        'DIANE',
+        'DOMINO',
+        'DOUG',
+        'ELEANOR',
+        'ERIC',
+        'EVE',
+        'FLORENCE',
+        'HANNAH',
+        'HELEN',
+        'PETER',
+        'SARAH',
+        'SIMON',
+        'VANAL',
+        ,
+      ];
+      const KEYWORD_SET = new Set(KEYWORDS.map((a) => a.toUpperCase()));
+
+      $messageContainer = document.querySelector('#messages-container');
+      $btnRefresh = document.querySelector('#btn-refresh');
+      $btnStop = document.querySelector('#btn-stop');
+      let stop = false;
+
+      setInterval(() => {
+        fetch('/twitch-plays/get-messages')
+          .then((res) => res.json())
+          .then((res) => {
+            $messageContainer.innerHTML = res.messages.reduce(
+              (acc, message) =>
+                `${acc}<div class="table"> <span class="${KEYWORD_SET.has(message.message) ? 'highlight' : ''}">${message.message}</span> <div></div> <span class="te">${message.counter}</span> </div>`,
+              '',
+            );
+          });
+      }, 1000);
+
+      $btnRefresh.onclick = () => {
+        $messageContainer.innerHTML = '';
+        fetch('/twitch-plays/clear');
+      };
+
+      $btnStop.onclick = () => {
+        if (stop) fetch('/twitch-plays/restart');
+        else fetch('/twitch-plays/stop');
+        stop = !stop;
+        $btnStop.innerHTML = stop ? 'Iniciar' : 'Parar';
+      };
+    </script>
+  </body>
+</html>

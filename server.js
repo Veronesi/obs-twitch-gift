@@ -30,6 +30,12 @@ const Server = {
       const image = fs.readFileSync('./public/image.png');
       res.end(image);
     },
+    startButton: (req, res) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'image/png');
+      const image = fs.readFileSync('./public/start-button.png');
+      res.end(image);
+    },
   },
   views: {
     home: (req, res) => {
@@ -163,7 +169,8 @@ const Server = {
       .get('/drop-keys-subs-today', Server.views.dropSubsKeyToday)
       .get('/drop-key', Server.methods.dropKey)
       .get('/reload-table-massive', Server.methods.reloadTableMassive)
-      .get('/reload-table', Server.methods.reloadTable);
+      .get('/reload-table', Server.methods.reloadTable)
+      .get('/start-button.png', Server.resources.startButton);
 
     Server.http = http.createServer((req, res) => {
       const { url } = lib.parseUrl(req.url);

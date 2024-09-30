@@ -7,7 +7,9 @@ export class GiftSubsRouter extends Router {
     super();
     const controller = new GiftSubsController(SubscribeTwitch);
     this.get('start', controller.start);
+    this.get('state', controller.state);
     this.get('get-subs', controller.start);
     this.get('get-messages', controller.getParticipants);
+    this.get('drop-key', controller.dropKey);
   }
 }

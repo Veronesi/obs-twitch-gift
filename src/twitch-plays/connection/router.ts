@@ -10,6 +10,8 @@ export class TwitchPlaysRouter extends Router {
     this.get('stop', controller.stop);
     this.get('get-messages', controller.getMessages);
     this.get('clear', controller.clear);
+    this.get('restart', controller.restart);
     this.get('', controller.renderHome);
+    this.get('her-story', controller.renderHerStory);
   }
 }

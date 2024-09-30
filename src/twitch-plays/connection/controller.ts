@@ -40,7 +40,8 @@ export class TwitchPlaysController extends HttpController {
         }
 
         // borramos el buffer mas antiguo
-        this.messages.shift();
+        // this.messages.shift();
+
         // agregamos el buffer a los mensajes
         // this.messages.push(this.bufferMessages);
         // this.bufferMessages = [];
@@ -72,17 +73,34 @@ export class TwitchPlaysController extends HttpController {
     this.messages = [];
   }
 
-  stop = () => {
+  restart: FunctionRouter = (req, res) => {
+    this.enable = true;
+    this.interval = setInterval(() => {
+      if (this.messages.length != this.MaxSizebuffer + 1) {
+        this.messages.push(this.bufferMessages);
+        this.bufferMessages = [];
+        return;
+      }
+    }, this.timeBuffer * 1000);
+    this.json(res, { success: true });
+  }
+
+  stop: FunctionRouter = (req, res) => {
     this.enable = false;
     clearInterval(this.interval);
+    this.json(res, { success: true });
   }
 
   renderHome: FunctionRouter = (req, res) => {
     this.html(res, 'src/public/html/twitch-plays/home.html');
   }
 
+  renderHerStory: FunctionRouter = (req, res) => {
+    this.html(res, 'src/public/html/her-story/home.html');
+  }
+
   private HandleGetMessage = ({ message }: OnMessageProps) => {
     if (!this.enable) return;
-    this.bufferMessages.push(message.slice(0, 20).toLocaleUpperCase());
+    this.bufferMessages.push(message.trim().slice(0, 20).toLocaleUpperCase());
   }
 }

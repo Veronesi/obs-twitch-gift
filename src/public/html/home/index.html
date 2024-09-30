@@ -1,0 +1,1271 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    * {
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+      font-smooth: never;
+      -webkit-font-smoothing: none;
+    }
+
+    #dropkey-history p {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+    }
+
+    .full {
+      transform: translate3d(0, 0, 0) !important;
+      top: 0 !important;
+      bottom: 27px !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: auto !important;
+      height: auto !important;
+    }
+
+    .scrolleable {
+      border: none;
+      overflow: auto;
+      outline: none;
+
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      resize: none;
+    }
+
+    .scrolleable::-webkit-scrollbar {
+      width: 20px;
+      height: 20px;
+    }
+
+    .scrolleable::-webkit-scrollbar-track {
+      background-color: #dedede;
+    }
+
+    .scrolleable::-webkit-scrollbar-thumb {
+      background-color: silver;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid gray;
+      border-bottom: 1px solid gray;
+      box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+    }
+
+    textarea {
+      border: none;
+      overflow: auto;
+      outline: none;
+
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      resize: none;
+    }
+
+    textarea::-webkit-scrollbar {
+      width: 20px;
+      height: 20px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+      background-color: #dedede;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+      background-color: silver;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid gray;
+      border-bottom: 1px solid gray;
+      box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+    }
+
+    .dropkey-winner-container {
+      position: absolute;
+      max-height: 450px;
+      -webkit-font-smoothing: none;
+      background-color: #084a9c;
+      border-top: 2px solid #efefef;
+      border-left: 2px solid #efefef;
+      border-right: 2px solid #000;
+      border-bottom: 2px solid #000;
+    }
+
+    .alert-loading {
+      bottom: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      right: 50%;
+      left: 50%;
+      top: 50%;
+      position: absolute;
+      height: 200px;
+      width: 500px;
+      background-color: silver;
+      -webkit-font-smoothing: none;
+      background-color: #c6c6c6;
+      border-top: 2px solid #efefef;
+      border-left: 2px solid #efefef;
+      border-right: 2px solid #000;
+      border-bottom: 2px solid #000;
+
+      .window-header {
+        max-height: 25px;
+        position: relative;
+        text-align: left;
+        color: #fff;
+        padding-right: 2px;
+        line-height: 1.4;
+        border-top: 1px solid silver;
+        border-left: 1px solid silver;
+        border-right: 2px solid silver;
+        border-bottom: 1px solid silver;
+        background: navy;
+        cursor: move;
+      }
+    }
+
+    .sheet {
+      border-right: solid 1px black;
+      text-align: center;
+      border: none;
+      overflow: auto;
+      outline: none;
+      height: 100%;
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      resize: none;
+      background-color: white;
+
+      width: 320px;
+
+      .row {
+        display: grid;
+        grid-template-columns: 30px 200px 70px;
+
+        .col {
+          border-bottom: solid 1px #e0e0e0;
+          border-right: solid 1px #e0e0e0;
+          border-top: solid 1px #bababa;
+          border-left: solid 1px #bababa;
+          height: 20px;
+        }
+      }
+
+      .col-header {
+        text-align: center;
+        border-bottom: solid 1px #f8f8f8;
+        border-right: solid 1px #f8f8f8;
+        background-color: #9f9f9f;
+        color: black;
+        font-weight: bold;
+      }
+
+      .row-header {
+        .col {
+          text-align: center;
+          border-bottom: solid 1px #f8f8f8;
+          border-right: solid 1px #f8f8f8;
+          background-color: #9f9f9f;
+          color: black;
+          font-weight: bold;
+        }
+      }
+
+      .col:hover {
+        border: solid 1px black;
+      }
+    }
+
+
+    .sheet::-webkit-scrollbar {
+      width: 20px;
+      height: 20px;
+    }
+
+    .sheet::-webkit-scrollbar-track {
+      background-color: #dedede;
+    }
+
+    .sheet::-webkit-scrollbar-thumb {
+      background-color: silver;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid gray;
+      border-bottom: 1px solid gray;
+      box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+    }
+
+    .d-none {
+      display: none;
+    }
+
+    body {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background-color: #018080;
+      display: grid;
+      grid-template-rows: auto 27px;
+    }
+
+    .folder {
+      width: auto;
+      padding: 1em;
+      display: grid;
+      flex-direction: row;
+      grid-template-rows: repeat(6, 6em);
+      grid-template-columns: repeat(6, 6em);
+      gap: 1em;
+
+      >* {
+        cursor: pointer;
+        color: whitesmoke;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        width: 6em;
+        height: 6em;
+        text-align: center;
+      }
+    }
+
+    .folder {
+      >* {
+        cursor: pointer;
+        color: whitesmoke;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        width: 6em;
+        height: 6em;
+        text-align: center;
+      }
+    }
+
+    #desktop {
+      width: auto;
+      padding: 1em;
+      display: grid;
+      flex-direction: row;
+      grid-template-rows: repeat(3, 80px);
+      grid-template-columns: repeat(3, 75px);
+      gap: 1em;
+
+      >* {
+        cursor: pointer;
+        color: whitesmoke;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        width: 6em;
+        height: 6em;
+        text-align: center;
+      }
+    }
+
+    #nav {
+      box-shadow: inset 1px 0 #fff;
+      display: flex;
+      background-color: silver;
+      border-top: 1px solid #f4f4f4;
+      border-bottom: 1px solid #4e4e4e;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      .start-button-wrapper {
+        margin-left: 2px;
+        margin-bottom: 2px;
+        vertical-align: middle;
+        display: inline-block;
+        padding: 2px 6px 3px;
+        background-color: silver;
+        border-top: 1px solid #fff;
+        border-left: 1px solid #fff;
+        border-right: 1px solid gray;
+        border-bottom: 1px solid gray;
+        box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+        color: #000;
+        border: 0;
+        cursor: pointer;
+        line-height: 22px;
+        min-width: 120px;
+      }
+
+      .btn-start {
+        background-image: url(/public/start-button.png);
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 45px;
+        height: 14px;
+      }
+
+      .start-button-selected {
+        margin-bottom: 2px;
+        padding: 2px 6px 3px 6px;
+        border-top: 1px solid #000;
+        border-left: 1px solid #000;
+        box-shadow: inset 1px 1px grey;
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAG0lEQVQYV2M8cODAf3t7ewbG/////z948CADAFuqCj64BtLKAAAAAElFTkSuQmCC);
+        vertical-align: middle;
+        line-height: 22px;
+        border-right: 1px solid #fff;
+        border-bottom: 1px solid #fff;
+        font-weight: 400;
+        color: #000;
+        min-width: 120px;
+      }
+    }
+
+    .window {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      height: 80%;
+      width: 80%;
+      font-weight: 400;
+      letter-spacing: .025em;
+      -webkit-font-smoothing: none;
+      background-color: #c6c6c6;
+      border-top: 2px solid #efefef;
+      border-left: 2px solid #efefef;
+      border-right: 2px solid #000;
+      border-bottom: 2px solid #000;
+
+      .window-header {
+        max-height: 25px;
+        position: relative;
+        text-align: left;
+        color: #fff;
+        padding-right: 2px;
+        line-height: 1.4;
+        border-top: 1px solid silver;
+        border-left: 1px solid silver;
+        border-right: 2px solid silver;
+        border-bottom: 1px solid silver;
+        background: navy;
+        cursor: move;
+
+        >img {
+          top: 3px;
+          left: 5px;
+          position: absolute;
+        }
+
+        >span {
+          margin-left: 24px;
+        }
+      }
+
+      .window-menu {
+        font-weight: 400;
+        letter-spacing: .025em;
+        -webkit-font-smoothing: none;
+        background-color: #c6c6c6;
+        border-top: 2px solid #efefef;
+        border-left: 2px solid #efefef;
+        border-right: 2px solid #000;
+        border-bottom: 2px solid #000;
+
+        >* {
+          position: relative;
+          padding: 0 5px;
+          cursor: pointer;
+          letter-spacing: -1px;
+          word-spacing: -4px;
+        }
+
+        >span::before {
+          position: absolute;
+          left: 5px;
+          bottom: 1px;
+          border-bottom: solid 1px black;
+          width: 10px;
+          height: 1px;
+          content: '';
+        }
+      }
+
+      .window-button {
+        color: #000;
+        background-color: silver;
+        position: relative;
+        /* z-index: 10; */
+        float: right;
+        display: block;
+        -moz-appearance: none;
+        appearance: none;
+        font-weight: 700;
+        letter-spacing: .05em;
+        padding: .45em .75em;
+        border-left: 2px solid #ededed;
+        border-top: 2px solid #ededed;
+        border-right: 2px solid #404040;
+        border-bottom: 2px solid #404040;
+        cursor: pointer;
+        top: 2px;
+      }
+    }
+
+    img {
+      image-rendering: pixelated;
+    }
+
+
+    #window-her-story {
+      background-color: #1e4a46;
+
+      .chat {
+        margin: 1em;
+        box-shadow: 15px 12px 0px 2px rgba(0, 0, 0, 0.29);
+        background: rgb(47, 47, 108);
+        background: linear-gradient(180deg, rgba(47, 47, 108, 1) 0%, rgba(31, 34, 85, 1) 50%, rgba(9, 9, 36, 1) 86%);
+        width: 30em;
+        height: 500px;
+        display: grid;
+        justify-content: stretch;
+        align-items: stretch;
+        padding: 1em;
+
+        .border {
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          justify-content: stretch;
+          position: relative;
+          border-radius: 0.7em;
+          border: solid 3px #39426a;
+          padding: 0 1em;
+
+          .header {
+            opacity: 0.9;
+            margin-top: -0.5em;
+            background-color: #6b77af;
+            text-align: center;
+            color: #cecdd4;
+          }
+
+          .btn {
+            color: #e1e4e7;
+            background: linear-gradient(180deg, rgba(45, 45, 101, 1) 0%, rgba(23, 26, 34, 1) 50%, rgba(45, 45, 101, 1) 100%);
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: solid 1px #150537;
+          }
+        }
+      }
+    }
+
+    .loader {
+      margin: 30px auto;
+      padding: 2px 6px 3px 6px;
+      border-top: 1px solid #000;
+      border-left: 1px solid #000;
+      box-shadow: inset 1px 1px grey;
+      vertical-align: middle;
+      line-height: 22px;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      font-weight: 400;
+      color: #000;
+      width: 300px;
+      height: 32px;
+
+      .content {
+        background-color: #122a7a;
+        height: 100%;
+        width: 0%;
+      }
+
+      .content.show {
+        animation-name: load;
+        animation-fill-mode: forwards;
+        animation-duration: 2s;
+      }
+    }
+
+    @keyframes load {
+      from {
+        width: 0%;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    .h1,
+    .h2 {
+      font-family: math;
+      text-transform: uppercase;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .h1 {
+      color: #ff1a1a;
+      font-size: 3.5em;
+      text-shadow: -0.8191520405px 0px 0px #00334d, 0px -0.5735764357px 0px #0099e6, -1.6383040811px -0.5735764357px 0px #00334d, -0.8191520405px -1.1471528715px 0px #0099e6, -2.4574561216px -1.1471528715px 0px #00334d, -1.6383040811px -1.7207293072px 0px #0099e6, -3.2766081622px -1.7207293072px 0px #00334d, -2.4574561216px -2.294305743px 0px #0099e6, -4.0957602027px -2.294305743px 0px #00334d, -3.2766081622px -2.8678821787px 0px #0099e6, -4.9149122433px -2.8678821787px 0px #00334d, -4.0957602027px -3.4414586144px 0px #0099e6, -5.7340642838px -3.4414586144px 0px #00334d, -4.9149122433px -4.0150350502px 0px #0099e6, -6.5532163244px -4.0150350502px 0px #00334d, -5.7340642838px -4.5886114859px 0px #0099e6, -7.3723683649px -4.5886114859px 0px #00334d, -6.5532163244px -5.1621879217px 0px #0099e6, -8.1915204055px -5.1621879217px 0px #00334d, -7.3723683649px -5.7357643574px 0px #0099e6, -9.010672446px -5.7357643574px 0px #00334d, -8.1915204055px -6.3093407931px 0px #0099e6, -9.8298244866px -6.3093407931px 0px #00334d, -9.010672446px -6.8829172289px 0px #0099e6, -10.6489765271px -6.8829172289px 0px #00334d, -9.8298244866px -7.4564936646px 0px #0099e6, -11.4681285676px -7.4564936646px 0px #00334d, -10.6489765271px -8.0300701004px 0px #0099e6, -12.2872806082px -8.0300701004px 0px #00334d, -11.4681285676px -8.6036465361px 0px #0099e6, -13.1064326487px -8.6036465361px 0px #00334d, -12.2872806082px -9.1772229718px 0px #0099e6, -13.9255846893px -9.1772229718px 0px #00334d, -13.1064326487px -9.7507994076px 0px #0099e6, -14.7447367298px -9.7507994076px 0px #00334d, -13.9255846893px -10.3243758433px 0px #0099e6, -15.5638887704px -10.3243758433px 0px #00334d, -14.7447367298px -10.897952279px 0px #0099e6, -16.3830408109px -10.897952279px 0px #00334d, -15.5638887704px -11.4715287148px 0px #0099e6, -17.2021928515px -11.4715287148px 0px #00334d, -16.3830408109px -12.0451051505px 0px #0099e6, -18.021344892px -12.0451051505px 0px #00334d, -17.2021928515px -12.6186815863px 0px #0099e6, -18.8404969326px -12.6186815863px 0px #00334d, -18.021344892px -13.192258022px 0px #0099e6, -19.6596489731px -13.192258022px 0px #00334d, -18.8404969326px -13.7658344577px 0px #0099e6, -20.4788010137px -13.7658344577px 0px #00334d, -19.6596489731px -14.3394108935px 0px #0099e6, -21.2979530542px -14.3394108935px 0px #00334d, -20.4788010137px -14.9129873292px 0px #0099e6, -22.1171050947px -14.9129873292px 0px #00334d, -21.2979530542px -15.486563765px 0px #0099e6, -22.9362571353px -15.486563765px 0px #00334d, -22.1171050947px -16.0601402007px 0px #0099e6, -23.7554091758px -16.0601402007px 0px #00334d, -22.9362571353px -16.6337166364px 0px #0099e6, -24.5745612164px -16.6337166364px 0px #00334d, -23.7554091758px -17.2072930722px 0px #0099e6, -25.3937132569px -17.2072930722px 0px #00334d, -24.5745612164px -17.7808695079px 0px #0099e6, -26.2128652975px -17.7808695079px 0px #00334d, -25.3937132569px -18.3544459437px 0px #0099e6, -27.032017338px -18.3544459437px 0px #00334d, -26.2128652975px -18.9280223794px 0px #0099e6, -27.8511693786px -18.9280223794px 0px #00334d, -27.032017338px -19.5015988151px 0px #0099e6, -28.6703214191px -19.5015988151px 0px #00334d, -27.8511693786px -20.0751752509px 0px #0099e6, -29.4894734597px -20.0751752509px 0px #00334d, -28.6703214191px -20.6487516866px 0px #0099e6, -30.3086255002px -20.6487516866px 0px #00334d, -29.4894734597px -21.2223281224px 0px #0099e6, -31.1277775407px -21.2223281224px 0px #00334d, -30.3086255002px -21.7959045581px 0px #0099e6, -31.9469295813px -21.7959045581px 0px #00334d, -31.1277775407px -22.3694809938px 0px #0099e6, -32.7660816218px -22.3694809938px 0px #00334d, -31.9469295813px -22.9430574296px 0px #0099e6, -33.5852336624px -22.9430574296px 0px #00334d, -32.7660816218px -23.5166338653px 0px #0099e6, -34.4043857029px -23.5166338653px 0px #00334d, -33.5852336624px -24.0902103011px 0px #0099e6, -35.2235377435px -24.0902103011px 0px #00334d, -34.4043857029px -24.6637867368px 0px #0099e6, -36.042689784px -24.6637867368px 0px #00334d, -35.2235377435px -25.2373631725px 0px #0099e6, -36.8618418246px -25.2373631725px 0px #00334d, -36.042689784px -25.8109396083px 0px #0099e6;
+      transform: translatex(36.042689784px) translatey(25.2373631725px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .h2 {
+      color: #dada0b;
+      font-size: 2.5em;
+      text-shadow: -0.8191520405px 0px 0px #790606, 0px -0.5735764357px 0px #da0b0b, -1.6383040811px -0.5735764357px 0px #790606, -0.8191520405px -1.1471528715px 0px #da0b0b, -2.4574561216px -1.1471528715px 0px #790606, -1.6383040811px -1.7207293072px 0px #da0b0b, -3.2766081622px -1.7207293072px 0px #790606, -2.4574561216px -2.294305743px 0px #da0b0b, -4.0957602027px -2.294305743px 0px #790606, -3.2766081622px -2.8678821787px 0px #da0b0b, -4.9149122433px -2.8678821787px 0px #790606, -4.0957602027px -3.4414586144px 0px #da0b0b, -5.7340642838px -3.4414586144px 0px #790606, -4.9149122433px -4.0150350502px 0px #da0b0b, -6.5532163244px -4.0150350502px 0px #790606, -5.7340642838px -4.5886114859px 0px #da0b0b, -7.3723683649px -4.5886114859px 0px #790606, -6.5532163244px -5.1621879217px 0px #da0b0b, -8.1915204055px -5.1621879217px 0px #790606, -7.3723683649px -5.7357643574px 0px #da0b0b, -9.010672446px -5.7357643574px 0px #790606, -8.1915204055px -6.3093407931px 0px #da0b0b, -9.8298244866px -6.3093407931px 0px #790606, -9.010672446px -6.8829172289px 0px #da0b0b, -10.6489765271px -6.8829172289px 0px #790606, -9.8298244866px -7.4564936646px 0px #da0b0b, -11.4681285676px -7.4564936646px 0px #790606, -10.6489765271px -8.0300701004px 0px #da0b0b, -12.2872806082px -8.0300701004px 0px #790606, -11.4681285676px -8.6036465361px 0px #da0b0b, -13.1064326487px -8.6036465361px 0px #790606, -12.2872806082px -9.1772229718px 0px #da0b0b, -13.9255846893px -9.1772229718px 0px #790606, -13.1064326487px -9.7507994076px 0px #da0b0b, -14.7447367298px -9.7507994076px 0px #790606, -13.9255846893px -10.3243758433px 0px #da0b0b, -15.5638887704px -10.3243758433px 0px #790606, -14.7447367298px -10.897952279px 0px #da0b0b, -16.3830408109px -10.897952279px 0px #790606, -15.5638887704px -11.4715287148px 0px #da0b0b, -17.2021928515px -11.4715287148px 0px #790606, -16.3830408109px -12.0451051505px 0px #da0b0b, -18.021344892px -12.0451051505px 0px #790606, -17.2021928515px -12.6186815863px 0px #da0b0b, -18.8404969326px -12.6186815863px 0px #790606, -18.021344892px -13.192258022px 0px #da0b0b, -19.6596489731px -13.192258022px 0px #790606, -18.8404969326px -13.7658344577px 0px #da0b0b, -20.4788010137px -13.7658344577px 0px #790606, -19.6596489731px -14.3394108935px 0px #da0b0b, -21.2979530542px -14.3394108935px 0px #790606, -20.4788010137px -14.9129873292px 0px #da0b0b, -22.1171050947px -14.9129873292px 0px #790606, -21.2979530542px -15.486563765px 0px #da0b0b, -22.9362571353px -15.486563765px 0px #790606, -22.1171050947px -16.0601402007px 0px #da0b0b, -23.7554091758px -16.0601402007px 0px #790606, -22.9362571353px -16.6337166364px 0px #da0b0b, -24.5745612164px -16.6337166364px 0px #790606, -23.7554091758px -17.2072930722px 0px #da0b0b, -25.3937132569px -17.2072930722px 0px #790606, -24.5745612164px -17.7808695079px 0px #da0b0b, -26.2128652975px -17.7808695079px 0px #790606, -25.3937132569px -18.3544459437px 0px #da0b0b, -27.032017338px -18.3544459437px 0px #790606, -26.2128652975px -18.9280223794px 0px #da0b0b, -27.8511693786px -18.9280223794px 0px #790606, -27.032017338px -19.5015988151px 0px #da0b0b, -28.6703214191px -19.5015988151px 0px #790606, -27.8511693786px -20.0751752509px 0px #da0b0b;
+      transform: translatex(36.042689784px) translatey(25.2373631725px);
+    }
+
+    .h2:first-of-type {
+      position: relative;
+      z-index: 2;
+    }
+
+    .h1,
+    .h2 {
+      font-family: "Bowlby One SC", sans-serif !important;
+      text-transform: uppercase;
+    }
+
+    .text3d {
+      margin-top: 40px;
+      margin-left: -30px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="desktop">
+    <article id="her-story">
+      <img width=" 50" height="50" src="public/ms_dos-1.png" alt="">
+      <span>Her Story.exe</span>
+    </article>
+    <article id="recycle-bin">
+      <img width="50" height="50" src="public/recycle_bin_full-0.png" alt="">
+      <span>Recycle Bin</span>
+    </article>
+    <span style="position: absolute;bottom: 20px;right: 50px;width: 100px;">Baity OS 1.0</span>
+    <span style="color: #ffffff77;position: absolute;bottom: 0px;right: 6px;width: 190px;">Ve a configuración para
+      activar BaityOS</span>
+  </section>
+  <footer id="nav">
+    <a title="Start Menu" class="button start-button-wrapper"
+      style="min-width: 0;width: 59px; align-items: center; display: flex; margin-right: 6px; margin-bottom: 0; margin-top: 0; min-height: 16px; align-self: center;">
+      <div class="btn-start"></div>
+    </a>
+    <span id="nav-her-story" class="d-none" style="position: relative;">
+      <img style="position: absolute; top: 5px" width=" 15" height="15" src="public/ms_dos-1.png" alt="">
+      <span style="margin-left: 20px;">Her Story</span>
+    </span>
+    <span id="nav-papelera" class="d-none" style="position: relative;">
+      <img style="position: absolute; top: 5px" width=" 15" height="15" src="public/recycle_bin_full-0.png" alt="">
+      <span style="margin-left: 20px;">Recycle Bin</span>
+    </span>
+  </footer>
+  <div id="window-her-story" class="window d-none">
+    <div class="window-header">
+      <img width=" 13" height="13" src="public/ms_dos-1.png" alt="">
+      <span>Her Story.exe</span>
+      <button id="close-her-story" class="window-button"
+        style="padding:0; height:16px;width:16px;position:relative;margin-left: 3px;">
+        <img src="public/close-icon.png" style="position:absolute;left:1px;top:0px;" />
+      </button>
+      <button id="maximize-her-story" class="window-button"
+        style="padding:0; height:16px;width:16px;position:relative;">
+        <div style="margin-left: 1px; margin-top: -1px; border: solid 2px black; width: 6px; height: 6px;"></div>
+      </button>
+      <button id="minimize-her-story" class="window-button"
+        style="padding:0; height:16px;width:16px;position:relative;">
+        <div style="border-bottom: solid 2px black; width: 10px; padding-top: 6px;"></div>
+      </button>
+    </div>
+    <div class="window-menu">
+      <span>Limpiar Chat</span>
+      <span>Pausar</span>
+      <span>Ayuda</span>
+    </div>
+    <div style="height: calc(100% - 130px); display: flex;">
+      <div class="chat" style="height: 100%;">
+        <div class="border">
+          <header class="header">CornerStone - [ClipD142-A.MPEG]</header>
+        </div>
+      </div>
+      <div class="chat" style="height: 100%;">
+        <div class="border">
+          <header class="header">Options - [her-story.conf]</header>
+          <div style="display: flex; justify-content: space-between; margin-top: 10px;align-items: center;">
+            <span style="color: whitesmoke;">Temporizador</span>
+            <input id="her-story-inputtime" value="00:30" type="time"
+              style="background-color: #6b77c1; padding: 0 15px;" />
+            <span id="her-story-btn-empezar" class="btn">Empezar</span>
+          </div>
+          <div style="text-align: center;">
+            <span id="her-story-timer" style="font-size: 100px; color: grey;">00:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="window-papelera" class="window d-none">
+    <div class="window-header">
+      <img width=" 13" height="13" src="public/color_profile-0.png" alt="">
+      <span>Papelera (Oficinas de EA)</span>
+      <button id="close-papelera" class="window-button"
+        style="padding:0; height:16px;width:16px;position:relative;margin-left: 3px;">
+        <img src="public/close-icon.png" style="position:absolute;left:1px;top:0px;" />
+      </button>
+      <button id="minimize-papelera" class="window-button" style="padding:0; height:16px;width:16px;position:relative;">
+        <div style="border-bottom: solid 2px black; width: 10px; padding-top: 6px;"></div>
+      </button>
+    </div>
+    <div style="height: calc(100% - 29px); width: 100%;background-color: darkslategray;">
+      <div class="folder">
+        <article>
+          <img width=" 50" height="50" src="public/write_file-1.png" alt="">
+          <span>Contrato de afiliación con Bugisoft.pdf</span>
+        </article>
+        <article>
+          <img width=" 50" height="50" src="public/color_profile-0.png" alt="">
+          <span>Vacas comiendo doritos.jpg</span>
+        </article>
+        <article>
+          <img width=" 50" height="50" src="public/color_profile-0.png" alt="">
+          <span>fotos de pies.jpg</span>
+        </article>
+        <article>
+          <img width=" 50" height="50" src="public/write_file-1.png" alt="">
+          <span>Monografico de pokemon parte 3.txt</span>
+        </article>
+        <article>
+          <img width=" 50" height="50" src="public/video_-1.png" alt="">
+          <span>Mi decisión de por qué me voy a Kick.mp4</span>
+        </article>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  class Alert {
+    closeBtn;
+    name;
+    icon;
+    isDragging;
+    offsetX;
+    offsetY;
+    $window;
+    constructor({ name, icon, closeBtn = false }) {
+      this.closeBtn = closeBtn;
+      this.name = name;
+      this.icon = icon;
+      this.generateWindow();
+    }
+
+    generateWindow = () => {
+      const html = `<div id="${this.id}" class="alert-loading d-none">
+          <div header="${this.id}" class="window-header">
+        <span>${this.name}</span>
+      </div>
+      <div body="${this.id}">
+      </div>
+  </div>`;
+      document.querySelector('body').insertAdjacentHTML('beforeend', html);
+      this.$window = document.getElementById(this.id);
+      this.$header = document.querySelector(`[header="${this.id}"]`);
+      this.$body = document.querySelector(`[body="${this.id}"]`);
+      this.$header.addEventListener('mousedown', e => {
+        this.isDragging = true;
+        this.offsetX = e.clientX - this.$window.offsetLeft;
+        this.offsetY = e.clientY - this.$window.offsetTop;
+        document.addEventListener('mousemove', this.moveWindow);
+        document.addEventListener('mouseup', this.stopDragging);
+      });
+    }
+
+    open = () => {
+      this.fnOpen();
+      this.isOpen = true;
+      this.$window.classList.remove('d-none');
+    }
+
+    close = () => {
+      this.isOpen = false;
+      this.$window.classList.add('d-none');
+    }
+  }
+
+  class Application {
+    isFull;
+    id;
+    name;
+    icon;
+    $window;
+    shortcurt;
+    isOnFolder;
+    isOpen;
+    isDragging;
+    offsetX;
+    offsetY;
+    fnMinimize = () => { };
+    fnOpen = () => { };
+    fnClose = () => { };
+    fnClose = () => { };
+    $header;
+    $body;
+    constructor({ name, icon, shortcurt, isOnFolder = null }) {
+      this.isFull = false;
+      this.isDragging = false;
+      this.name = name;
+      this.icon = icon;
+      this.isOpen = false;
+      this.isOnFolder = isOnFolder;
+      this.shortcurt = shortcurt;
+      this.id = String(Math.random());
+      this.generateWindow();
+      if (this.shortcurt || this.isOnFolder) this.generateShortcut();
+    }
+
+    generateShortcut = () => {
+      const html = `<article id="shortcut${this.id}">
+      <img width="50" height="50" src="${this.icon}" alt="">
+      <span>${this.shortcurt}</span>
+    </article>`;
+      if (this.isOnFolder) {
+        this.isOnFolder.insertAdjacentHTML('beforeend', html);
+      } else {
+        const $desktop = document.getElementById('desktop');
+        $desktop.insertAdjacentHTML('beforeend', html);
+      }
+
+      document.getElementById(`shortcut${this.id}`).onclick = this.open;
+    };
+
+    open = () => {
+      if (!this.isOpen) {
+        const html = `<span nav="${this.id}" class="start-button-selected" style="position: relative">
+      <img style="position: absolute; top: 5px" width=" 15" height="15" src="${this.icon}" alt="">
+      <span style="margin-left: 20px;">${this.name}</span>
+    </span>`;
+        document.getElementById("nav").insertAdjacentHTML('beforeend', html);
+        document.querySelector(`[nav="${this.id}"]`).onclick = this.open;
+      } else {
+        document.querySelector(`[nav="${this.id}"]`).classList.add('start-button-selected');
+        document.querySelector(`[nav="${this.id}"`).classList.remove('start-button-wrapper');
+      }
+      this.fnOpen();
+      this.isOpen = true;
+      this.$window.classList.remove('d-none');
+    }
+
+    close = () => {
+      this.$window.setAttribute("style", "");
+      this.isOpen = false;
+      this.$window.classList.add('d-none');
+      document.querySelector(`[nav="${this.id}"`).remove();
+      this.fnClose();
+    }
+
+    maximize = () => {
+      if (this.isFull) {
+        this.$window.setAttribute("style", "");
+        this.isFull = false;
+        return;
+      }
+      this.isFull = true;
+      this.$window.setAttribute("style", "left:0; right:0; top:0; bottom: 0; width: auto; height: calc(100% - 32px)");
+    }
+
+    minimize = () => {
+      document.querySelector(`[nav="${this.id}"]`).classList.remove('start-button-selected');
+      document.querySelector(`[nav="${this.id}"`).classList.add('start-button-wrapper');
+      this.$window.classList.add('d-none');
+      this.fnMinimize();
+    }
+
+    moveWindow = (e) => {
+      if (this.isFull) return;
+      if (this.isDragging) {
+        this.$window.style.left = e.clientX - this.offsetX + 'px';
+        this.$window.style.top = e.clientY - this.offsetY + 'px';
+      }
+    }
+
+    stopDragging = () => {
+      this.isDragging = false;
+      document.removeEventListener('mousemove', this.moveWindow);
+      document.removeEventListener('mouseup', this.stopDragging);
+    }
+
+    generateWindow = () => {
+      const html = `<div id="${this.id}" class="window d-none">
+    <div header="${this.id}" class="window-header">
+      <img width="13" height="13" src="${this.icon}" alt="">
+      <span>${this.name}</span>
+      <button close="${this.id}" class="window-button"
+        style="padding:0; height:16px;width:16px;position:relative;margin-left: 3px;">
+        <img src="public/close-icon.png" style="position:absolute;left:1px;top:0px;" />
+      </button>
+      <button maximize="${this.id}" class="window-button" style="padding:0; height:16px;width:16px;position:relative;">
+        <div style="margin-left: 1px; margin-top: -1px; border: solid 2px black; width: 6px; height: 6px;"></div>
+      </button>
+      <button minimize="${this.id}" class="window-button" style="padding:0; height:16px;width:16px;position:relative;">
+        <div style="border-bottom: solid 2px black; width: 10px; padding-top: 6px;"></div>
+      </button>
+    </div>
+    <div style="height: calc(100% - 20px); width: 100%" body="${this.id}">
+    </div>
+  </div>`;
+      document.querySelector('body').insertAdjacentHTML('beforeend', html);
+      this.$window = document.getElementById(this.id);
+      document.querySelector(`[close="${this.id}"]`).onclick = this.close;
+      document.querySelector(`[maximize="${this.id}"]`).onclick = this.maximize;
+      document.querySelector(`[minimize="${this.id}"]`).onclick = this.minimize;
+      this.$header = document.querySelector(`[header="${this.id}"]`);
+      this.$body = document.querySelector(`[body="${this.id}"]`);
+      this.$header.addEventListener('mousedown', e => {
+        this.isDragging = true;
+        this.offsetX = e.clientX - this.$window.offsetLeft;
+        this.offsetY = e.clientY - this.$window.offsetTop;
+        document.addEventListener('mousemove', this.moveWindow);
+        document.addEventListener('mouseup', this.stopDragging);
+      });
+    }
+  }
+
+  class FolderApplication extends Application {
+    constructor({ name, icon = 'public/directory_closed-0.png', shortcurt }) {
+      super({ name, icon, shortcurt });
+      this.$body.style.backgroundColor = '#018080';
+      this.$body.innerHTML = `
+        <div class="folder" style="padding: 14px;height: 100%; display: flex; width: 100%; flex-wrap: wrap;gap: 14px;align-content: flex-start; align-items: flex-start; justify-content: flex-start;">
+        </div>
+      `;
+    }
+  }
+
+  const folder = new FolderApplication({ name: "Recycle Bin", icon: "public/recycle_bin_full-0.png", shortcurt: "Recycle Bin" });
+  folder.open();
+
+  const vacasPng = new Application({ name: "Vacas comiendo doritos.jpg", icon: "public/color_profile-0.png", shortcurt: "Vacas comiendo doritos.jpg", isOnFolder: folder.$body.childNodes[1] })
+  const videoTrash = new Application({ name: "test.mp4", icon: "public/video_-1.png", shortcurt: "video.pm4", isOnFolder: folder.$body.childNodes[1] });
+  videoTrash.$body.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/1K_wJlkZ-YA?si=r-Ktehy_UgBbz2J9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+
+  class DeathScreen extends Application {
+    constructor() {
+      super({ name: 'Internal Server Error' });
+      this.maximize();
+      this.$body.innerHTML = `<div style="height: 100%;color: silver;background-color: #010180"; font-family: font-family: "Lucida Console", "Courier New", monospace !important;>
+       <div style="padding-top: 100px; margin-left: auto; margin-right: auto; width: 600px; vertical-align: middle;"> <p style="margin-bottom: 2em;">A problem has been detected and windows has been shut down to prevent damage to your computer.</p>
+        <p style="margin-bottom: 1em;">The end-user manually generated the crashdump.</p>
+        <p  style="margin-bottom: 2em;">If this is the first time you've seen this stop error screen, restart your computer. If this screen appears again, follow these steps:</p>
+<p>Check to make sure any new hardware or software is properly installed.</p>
+<p>For ary Windors updates you might need. hardware or software manufacturer</p>
+<p>If problems continue, disable or remove any newly installed hardware or software. Disable</p>
+<p>BIOS memory options such as caching or shadowing.</p>
+<p style="margin-bottom: 1em;">If you need to use Safe mode to remove or disable components, restart your computer, press F8 to select Advanced Startup options, and then select Safe Mode.</p>
+<p style="margin-bottom: 1em;">Technical information:</p>
+<p style="margin-bottom: 2em;">*** STOP: 0x0000002 (0x00000000, 0x00000000, 0x00000000, 0x00000000)</p>
+<p>Beginning dump of physical memory</p>
+<p>Physical memory dump complete.</p>
+<p>Contact your system administrator or technical support group for further assistance.</p></div>
+</div>`
+    }
+  }
+
+  class PhotoViewerApplication extends Application {
+    constructor({ name, icon = "public/color_profile-0.png", shortcurt, image }) {
+      super({ name, icon, shortcurt });
+      this.$body.innerHTML = `<div
+        style="background-size: contain;background-image: url(${image});height: 100%;width: 100%;background-repeat: no-repeat;background-position: center;">
+      </div>`;
+    }
+  }
+
+  class TextEditorApplication extends Application {
+    constructor({ name, icon = "public/address_book_pad.png", shortcurt, text }) {
+      super({ name, icon, shortcurt });
+      this.$body.innerHTML = `<textarea name="text-editor" style="white-space: pre; letter-spacing: unset; line-height: 6px; transform: unset; width: calc(100% - 5px); height: 100%;">${text}</textarea>`;
+    }
+  }
+
+  class WinnerDropKeyApplication extends Application {
+    constructor({ gameImage, gameName, gameScore, gameScoreBy, winner, alternate }) {
+      super({ name: "Tongo", icon: "public/users_key-4.png" });
+      this.$body.innerHTML = `<div style="height: 100%;
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    grid-template-rows: 100%; background-color: #084a9c;">
+      <div
+        style="background-size: contain;background-image: url(${gameImage});height: 100%;width: 100%;background-repeat: no-repeat;background-position: center;">
+      </div>
+      <div style="padding-top: 20px; text-align: center;">
+        <p style="color: whitesmoke; font-size: 28px;">Ganador: <span>${winner}</span></p>
+        <p style="color: whitesmoke; font-size: 20px;">Suplente: <span>${alternate}</span></p>
+        <div class="text3d">
+          <h2 class="h2">${gameScore} EN ${gameScoreBy}</h2>
+          <h1 id="dropkey-gamename" class="h1">${gameName}</h1>
+          <h2 class="h2">Juegardo</h2>
+        </div>
+      </div>
+    </div>`;
+    }
+  }
+
+  class DropKetApplicatioon extends Application {
+    enableDropKey = false;
+    dropkeyParticipants = [];
+    interval = 0;
+    winners = [];
+    $btnStart;
+    $btnSortear;
+    $history;
+    $table;
+
+    games = [
+      { name: "aristoputas", img: "public/caratulas/aristoputas.png" },
+      { name: "GTA Killer", img: "public/caratulas/aterrador-payaso-miedo.png" },
+      { name: "deal or no deal", img: "public/caratulas/deal-or-no-deal.png" },
+      { name: "fifa 2004", img: "public/caratulas/fifa-2004.png" },
+      { name: "genshin impact", img: "public/caratulas/genshin-impact.png" },
+      { name: "Golum", img: "public/caratulas/golum.png" },
+      { name: "concord", img: "public/caratulas/concord.png" },
+      { name: "gta VII", img: "public/caratulas/GTA-7.png" },
+      { name: "hentai uni", img: "public/caratulas/hero.png" },
+      { name: "house of ashes", img: "public/caratulas/house-of-ashes.png" },
+      { name: "el puto lol", img: "public/caratulas/league-of-legends.png" },
+      { name: "monopoly go", img: "public/caratulas/monopoly-go.png" },
+      { name: "portal 3", img: "public/caratulas/portal-3.png" },
+      { name: "roblox", img: "public/caratulas/roblox.png" },
+      { name: "somari", img: "public/caratulas/somari.png" },
+      { name: "spogs racing", img: "public/caratulas/spogs-racing.png" },
+      { name: "wharhammer", img: "public/caratulas/warhammer.png" }
+    ];
+
+    constructor() {
+      super({ name: "DropKey.exe", icon: "public/users_key-4.png", shortcurt: "DropKey.exe" });
+      const html = `<div style="height: 100%; display: grid; grid-template-columns: 335px auto; grid-template-rows: 100%;"><div id="${this.id}-table" class="sheet">
+        <div class="row row-header">
+          <div class="col"></div>
+          <div class="col">Usuario</div>
+          <div class="col">Puntos</div>
+        </div>
+      </div>
+      <div
+        style="display: flex; align-items: center; justify-content: start; padding: 10px; flex-direction: column;gap: 5px;">
+        <p>Subscripción / Prime: 1 punto</p>
+        <p>Por cada subs regalda, 1 punto</p>
+        <span id="${this.id}-btn-start" class="window-button" style="margin-top: 10px">Escanear</span>
+        <div style="text-align: left; background: transparent;width: 100%;" class="scrolleable">
+          <div id="${this.id}-winners">
+          </div>
+          <p>Historial</p>
+          <div id="${this.id}-history">
+
+          </div>
+        </div>
+        <span id="${this.id}-sortear" class="window-button" style="margin-top: auto">Sortear Clave</span>
+      </div>
+      </div>`
+      this.$body.insertAdjacentHTML('beforeend', html);
+      this.$history = document.getElementById(`${this.id}-history`);
+      this.$table = document.getElementById(`${this.id}-table`);
+      this.$btnStart = document.getElementById(`${this.id}-btn-start`);
+      this.$btnStart.onclick = this.start;
+      this.$btnSortear = document.getElementById(`${this.id}-sortear`);
+      this.$btnSortear.onclick = this.sortear;
+    }
+
+    fnOpen = () => {
+      fetch('gift-subs/state')
+        .then(res => res.json())
+        .then(res => {
+          this.enableDropKey = res.enable;
+          if (this.enableDropKey) {
+            this.$btnStart.innerText = 'Detener';
+            this.refreshTable();
+            this.interval = setInterval(this.refreshTable, 2000);
+
+            const winners = res.winners.reduce((acc, winner) => `${acc}<p>Ganadores</p>
+            <p>├ ${winner[0]} [Ganador]</p>
+            <p style="margin-bottom: 5px;">└ ${winner[1]} [Suplente]</p>`, '')
+
+            document.getElementById(`${this.id}-winners`).innerHTML = winners;
+
+            return;
+          }
+          this.$btnStart.innerText = 'Escanear';
+        })
+    }
+
+    fnClose = () => {
+      clearInterval(this.interval);
+    }
+
+    fnMinimize = () => {
+      clearInterval(this.interval);
+    }
+
+    sortear = () => {
+      const alert = new Alert({ name: "Haciendo cosillas...", icon: "public/tongo.png" });
+      alert.$body.innerHTML = `
+            <div class="loader">
+              <div id="${alert.id}-loading" class="content"></div>
+            </div>
+          `;
+      alert.fnOpen = () => {
+        document.getElementById(`${alert.id}-loading`).classList.add('show');
+      }
+      alert.open();
+
+      fetch('gift-subs/drop-key').then(res => res.json())
+        .then(res => {
+          if (!res.success) return;
+          this.winners.push(res.winners);
+        });
+
+      setTimeout(() => {
+        document.getElementById(`${this.id}-winners`).insertAdjacentHTML('beforeend',
+          `<p>Ganadores</p>
+            <p>├ ${this.winners[this.winners.length - 1][0]} [Ganador]</p>
+            <p style="margin-bottom: 5px;">└ ${this.winners[this.winners.length - 1][1]} [Suplente]</p>`
+        );
+
+        const gamedrop = this.games[parseInt(Math.random() * this.games.length)];
+
+        const winnerDropKeyApplication = new WinnerDropKeyApplication({ gameImage: gamedrop.img, gameName: gamedrop.name, gameScore: (10 - Math.random() * 3).toFixed(1), gameScoreBy: Math.random() >= 0.5 ? 'IGN' : 'metacritic', winner: this.winners[this.winners.length - 1][0], alternate: this.winners[this.winners.length - 1][1] });
+        winnerDropKeyApplication.open();
+        alert.$window.classList.remove("show");
+        alert.close();
+      }, 2500);
+    }
+
+    start = () => {
+      if (this.enableDropKey) {
+        this.$btnStart.innerText = "Escanear";
+        clearInterval(this.interval);
+        return;
+      };
+      fetch('gift-subs/start')
+        .then(res => res.json())
+        .then(res => {
+          if (!res.success) return;
+          this.interval = setInterval(this.refreshTable, 2000);
+          this.enableDropKey = true;
+          this.$btnStart.innerText = 'Detener';
+        })
+    }
+
+    refreshTable = () => {
+      fetch('gift-subs/get-messages')
+        .then(res => res.json())
+        .then(res => {
+          if (res.participants.length === this.dropkeyParticipants.length) return;
+          res.participants.reverse();
+          const sheetDOM = res.participants
+            .sort((a, b) => a.counter > b.counter ? -1 : 1)
+            .reduce((acc, e, i) => `${acc}
+      <div class="row">
+          <div class="col col-header">${i + 1}</div>
+          <div class="col">${e.username}</div>
+          <div class="col">${e.counter}</div>
+        </div>
+      `,
+              `<div class="row row-header">
+          <div class="col"></div>
+          <div class="col">Usuario</div>
+          <div class="col">Puntos</div>
+        </div>`);
+          res.history.reverse();
+          const getIcon = this.getIcon;
+          const historyDOM = res.history.filter(e => !e.recipient).reduce((acc, e) => `${acc}${`
+        <p>${getIcon(e.type)} ${e.username} ${e.type == 'gift' ? `[${e.counter}]` : ''}</p>
+        `}`, '')
+          this.dropkeyParticipants = res.participants;
+          this.$table.innerHTML = sheetDOM;
+          this.$history.innerHTML = historyDOM;
+        });
+    }
+
+    getIcon = (type) => {
+      if (type == 'normal') {
+        return '├ <svg width="20" height="20" version="1.1" viewBox="0 0 20 20" x="0px" y="0px" data-a-selector="tw-core-button-icon" aria-hidden="true" class="ScIconSVG-sc-1q25cff-1 jpczqG"><g><path fill="#9047ff" d="M8.944 2.654c.406-.872 1.706-.872 2.112 0l1.754 3.77 4.2.583c.932.13 1.318 1.209.664 1.853l-3.128 3.083.755 4.272c.163.92-.876 1.603-1.722 1.132L10 15.354l-3.579 1.993c-.846.47-1.885-.212-1.722-1.132l.755-4.272L2.326 8.86c-.654-.644-.268-1.723.664-1.853l4.2-.583 1.754-3.77z"></path></g></svg>';
+      }
+
+      if (type == 'prime') {
+        return '├ <svg width="20" height="20" viewBox="0 0 20 20"><path fill="#4185f3" fill-rule="evenodd" d="M18 5v8a2 2 0 0 1-2 2H4a2.002 2.002 0 0 1-2-2V5l4 3 4-4 4 4 4-3z" clip-rule="evenodd"></path></svg>';
+      }
+
+      if (type == 'gift') {
+        return '├ <svg  width="20" height="25" viewBox="0 0 20 20" aria-hidden="true"><path stroke="#00d6d6" stroke-width="1" fill="#028383" fill-rule="evenodd" d="M16 6h2v6h-1v6H3v-6H2V6h2V4.793c0-2.507 3.03-3.762 4.803-1.99.131.131.249.275.352.429L10 4.5l.845-1.268a2.81 2.81 0 0 1 .352-.429C12.969 1.031 16 2.286 16 4.793V6zM6 4.793V6h2.596L7.49 4.341A.814.814 0 0 0 6 4.793zm8 0V6h-2.596l1.106-1.659a.814.814 0 0 1 1.49.451zM16 8v2h-5V8h5zm-1 8v-4h-4v4h4zM9 8v2H4V8h5zm0 4H5v4h4v-4z" clip-rule="evenodd"></path></svg>';
+      }
+
+      return '├ ';
+    }
+  }
+
+  new DropKetApplicatioon();
+  new PhotoViewerApplication({ name: 'TONGO.jpg - Visualizador de ...', shortcurt: 'TONGO.jpg', image: 'public/tongo.png' });
+  new TextEditorApplication({
+    name: 'Leerme.txt - Notepadd', shortcurt: 'Leerme.txt', text: `@@@@@@@@@@@@@@@@@@@@@@@@#..=@@%@@::**+=-==++#*+=-=----=*%@@@=..:.-:+.=@=.-%#*%@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@@@@@@@@@@%%@@- .-...:*#%%@%%%%%@#++==:.::=++:-=+==.:+=+#.+@+:#@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@@@@@++=-#@@@#=.-+**#@@@@@@@@@@*@@@@@%@%#**+:..:.:::-%=.:+%@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@* :=    -%#=-=@@@**@@@@@@@@%@@@@@@@@@@@@%+*@@#=:+@%*#+-= -@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@##%. : :   :+@@@@@@@@@@@@@@@@@@%@@#@@@@##@%@*#%#+*%@#--@@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@##+--+ .::-#@#*#*###@%#%##*%@#=%+%%%%@@@@@@@@#**@-:%@@@@@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@%=  @%*--:%@*##@@@@@%#==#+:+-=:-=+@=#@@@@@@@@@@=+%:-@@@@@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@.*%%++::. .-*#@%@@%@@%@@@%++%####*+#@##+%@@@%%@@@*%*#+:%@@@@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@ . .  -=..-=:##@@@@@@%@@@@%#**#%%%***=:+=+@%@@#%%+@@@.#@@@@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@**+--:::..%#=@@@@@%@%@+:..: ..:-:-.  . .-.+%:+:-#=%@%+#@@@@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@*=@%:-##..*@@@@@@@%*+..:      .    .             .:+@%##@@@@*==@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@*=@%-:.%=:%@@#@@@#=--:    . ..                      =%@=#@@@%##@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@@#-..:+@@@@@@@+---:.    .                         +@*.-%%==@%%%@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@@=.-*=#@@@@@@*---:..  .                           :%=  ::***  .+-#@@@@@@@@\n
+@@@@@@@@@@@@@@@@@%=+*=%#@@@@*---:: .            ..   .-.           #+*#%%@@@*- .  @@@@@@@@\n
+@@%%@@@@@@@@@@@@@@@%@-@+#@@#--:: . .      .  ..       :.         . +*:**@%+%@*...*@@@@@@@@\n
+*#:+@@@@@@@@@@@@@@::#=%+%%@=:-:::.                     :     .   ..=+ ::#%*%@@@@@@@%%@@@@@\n
+:+@@@@@@*.*==-*@@@:%+-++***+-:-:--:::--::        ..     .   .    .:+-*@#*@@@*+%@@-: -@@@@@\n
+@@@@@@%+  :..  =@@+@+*:-@%%%%##%%%#***####*=..- .-=-.:+*#*###**===*@+#-. *@@#*%@::*==@%+%@\n
+@@@@@@-... :   .@@+**+*=%%%#+*@#-.:::---=-+*%##  :%+++*+=%%***#%@%@@%@%+. @@%*+:. .    :+@\n
+@@@@@=..:- . .. :@###+#*%=+..-#-...   .: :.-#@+=-=*%%:. :-:..-.=%%@@+--#- -%%::-::::-:. =@\n
+@@===:. :.    . .-::-%=%#+=...%=.:.  ::.-..=@@#+:-@@#..:..::-. :++@#+*%#=. =*..  .::..:*@@\n
+@* ..:::::..::. --:=:+##+%#:.:+#=-:.:..-..:*%#-:  #@#-:....=. ..*#%###   .-:       ..:. #@\n
+@%+++. ::..  ::*..-#:@**+%%=::-##+::.... .*%=*.   =@*+.  .:....==%@@*  . :** :-:.  ..:--#@\n
+@@@@%::-+++*: .  ::.:*@#%#@*--::+*#*+-::-++=-#.   .+*#*----===#- *@#.   ....=::. ..  .+@@@\n
+@@@:+@@@@+:: ... ..:-+%#@@@@*-: .--=--   .++--.    -=+-::---:-::-%@+       .:... .=+=%@@@@\n
+@@- .:::*:::.::::... .-#@@@@@#==++*#=. ...*+:.    -=**:      .=+@@%.    .. .++#=  +%@@@@@@\n
+@@#+*#*. ...=#+.:-= .::*@@@@@@@@%@#+=+#=. :%@@#++*@@=..:    :+@@@@#   . : ==:--.   +@@@%*@\n
+@@@@@*-.   --#=.....--::%@@@@@@@@@@%##*.   .*@%@@%*:.   -.:-%@@@@@=    :..+:++=   =@@@@= %\n
+@@@@*.    :*@#::.+:-.:+:.+@@@%@@@@@@@%=+*#%%**#=*%*@%#*+-:*%@@@@@@...  ::+@.::.:   .-@@@  \n
+@@@@#.  ==-+#=-+  ..   +- -%@@@@@@@@@%=@#*++=--=-----=#@- %@#@@@@+:. :.....:...     %@@@@@\n
+@@@@#. :#@%+::*@=.-:. =@#:=*@@@@%@@%@@#+:==+*+======- -=..#%#@@#==:.:%:.  --:...  ..*@@@@@\n
+@@%+-%#-:+@#- .%:.@   +::#+*++@@@%@@@@*=-:=:-++==-:     .#@%@@*. @%*#* =*:.-:.::. :+*@@@@@\n
+*--...*:**.@%*%%+#@+ ...#@@%+-=#@@@@@@%*==:-:--%#=::.  .=@#@@+...#@@@=  .-#=     :*@@@@@@@\n
+@@@++@@@@@@@@@@@@@@* =#*%@@%@*--=#@@@%#@%+-:::-:..:---+@@#@%:=%..#@@@@%       ..+@@@@@@@@@\n
+@@@@@@@@@@@@%%@@@@@@%:=@%@@@@@%+:.=%@@@@%%++--%.=+%%#@@@@@@:-#@=:#@@***  ::.  .:%@@@@@@@@@\n
+@@@@@@@@@@...:@@@@@+  =%@@@@%@@@#-.:*@@@@%%@##@+*@@@@@@@@*-+%@@+:@@@...+....:.  %@@@@@@@@@\n
+@@@@@@@@@@@**%@@@@@@=::@@@@@@#@@@@#-.:*@@%@@@@@%@@@@@@@@*=%@@@%+:@@@:.  .... . *@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@@@@:  .:#%@@@@#%@@@@@+::=%@@*%@@%@#@@@#++@@@@@%-%*==   .:.++=#@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@=:%%:     :+#@@@@#%@@@@%@#+=+=-+++****+-=*@@@@@@=+@+ .*:*==:.@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@*.*.      +%*+#@@@@@@@@@%@@@%**=----=+*%@@@#*@%-:+@%:=-=##@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@*==@@@@:  .   *@@%+=#@@@@@@@@@%%@@@@@%##@@@@%*--+*:.#@@@@@%-..@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@#=:#+%@@@%%.  +@@@:+ --#%@@@@@@%**%@@@@@@*+-:----:.+@@@@#-@@%%@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@%%#=%@@@@@*: =@@@@#:##-:=%%%%*++=--=+*+=------:-=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n
+@@@@@@@@@@@@@@@@@@@@@@@%@@@= .+@@%.  :-=..:-------------::*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nXd
+  ` })
+
+
+  // Her Story
+  const $herStory = document.querySelector('#her-story');
+  const $windowHerStory = document.querySelector('#window-her-story');
+  const $closeHerStory = document.querySelector('#close-her-story');
+  const $minimizeHerStory = document.querySelector('#minimize-her-story');
+  const $maximizeHerStory = document.querySelector("#maximize-her-story");
+  const $navHerStory = document.querySelector('#nav-her-story');
+
+  const $HerStroryinputTimer = document.querySelector('#her-story-inputtime');
+  const $HerStrorybtnEmpezar = document.querySelector('#her-story-btn-empezar');
+  const $HerStroryTimer = document.querySelector('#her-story-timer');
+  let interval = null;
+  let herstoryTime = [0, 0];
+
+  $HerStrorybtnEmpezar.onclick = () => {
+    herstoryTime = $HerStroryinputTimer.value.split(':').map(e => +e);
+    $HerStroryTimer.style.color = 'whitesmoke';
+    $HerStroryTimer.innerHTML = `${String(herstoryTime[0]).padStart(2, 0)}:${String(herstoryTime[1]).padStart(2, 0)}`;
+    interval = setInterval(() => {
+      if (!herstoryTime[0] && !herstoryTime[1]) {
+        $HerStroryTimer.style.color = 'grey';
+        clearInterval(interval);
+        return;
+      }
+      if (herstoryTime[1] > 0) {
+        herstoryTime[1] = herstoryTime[1] - 1;
+      } else {
+        herstoryTime[0] = herstoryTime[0] - 1;
+        herstoryTime[1] = 59;
+      }
+      $HerStroryTimer.innerHTML = `${String(herstoryTime[0]).padStart(2, 0)}:${String(herstoryTime[1]).padStart(2, 0)}`;
+    }, 1000);
+  }
+
+
+  $herStory.onclick = () => {
+    $windowHerStory.classList.remove('full');
+    $windowHerStory.classList.remove('d-none');
+    $navHerStory.classList.remove('d-none');
+    $navHerStory.classList.add('start-button-selected');
+  }
+
+  $closeHerStory.onclick = () => {
+    $windowHerStory.classList.add('d-none');
+    $navHerStory.classList.add('d-none');
+    $navHerStory.classList.remove('start-button-wrapper');
+  }
+
+  $minimizeHerStory.onclick = () => {
+    $windowHerStory.classList.add('d-none');
+    $navHerStory.classList.remove('start-button-selected');
+    $navHerStory.classList.add('start-button-wrapper');
+  }
+
+  $maximizeHerStory.onclick = () => {
+    $windowHerStory.classList.toggle('full');
+  }
+
+  $navHerStory.onclick = () => {
+    $windowHerStory.classList.remove('d-none');
+    $navHerStory.classList.remove('d-none');
+    $navHerStory.classList.remove('start-button-wrapper');
+    $navHerStory.classList.add('start-button-selected');
+  }
+
+  // Papelera
+  const $papelera = document.querySelector('#recycle-bin');
+  const $windowpapelera = document.querySelector('#window-papelera');
+  const $closepapelera = document.querySelector('#close-papelera');
+  const $minimizepapelera = document.querySelector('#minimize-papelera');
+  const $navpapelera = document.querySelector('#nav-papelera');
+
+  $papelera.onclick = () => {
+    $windowpapelera.classList.remove('d-none');
+    $navpapelera.classList.remove('d-none');
+    $navpapelera.classList.add('start-button-selected');
+  }
+
+  $closepapelera.onclick = () => {
+    $windowpapelera.classList.add('d-none');
+    $navpapelera.classList.add('d-none');
+    $navpapelera.classList.remove('start-button-wrapper');
+  }
+
+  $minimizepapelera.onclick = () => {
+    $windowpapelera.classList.add('d-none');
+    $navpapelera.classList.remove('start-button-selected');
+    $navpapelera.classList.add('start-button-wrapper');
+  }
+
+  $navpapelera.onclick = () => {
+    $windowpapelera.classList.remove('d-none');
+    $navpapelera.classList.remove('d-none');
+    $navpapelera.classList.remove('start-button-wrapper');
+    $navpapelera.classList.add('start-button-selected');
+  }
+</script>
+
+</html>

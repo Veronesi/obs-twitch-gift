@@ -27,4 +27,12 @@ export abstract class HttpController {
       cb(e);
     }
   }
+
+  image(res: http.ServerResponse<http.IncomingMessage>, name: string) {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'image/png');
+    this.readModuleFile('src/public/' + name, (data: string) => {
+      res.end(data);
+    })
+  }
 }
