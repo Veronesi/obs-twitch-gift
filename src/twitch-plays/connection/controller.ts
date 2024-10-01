@@ -1,4 +1,5 @@
 
+import fs from 'fs';
 import { terminal } from "src/shared/helper/terminal";
 import { FunctionRouter } from "../../shared/domain/Router";
 import { SubscribeTwitch } from "../../twitch/application/Subscribe";
@@ -6,6 +7,7 @@ import { OnMessageProps } from "../../twitch/domain/TwitchRepository";
 import { HttpController } from "src/shared/domain/HttpController";
 
 export class TwitchPlaysController extends HttpController {
+  connected = false;
   // mensajes obtenidos en el ultimo intervalo
   bufferMessages: string[] = [];
   // lista de mensajes agrupados por intervalo de tiempo
@@ -19,6 +21,7 @@ export class TwitchPlaysController extends HttpController {
   SubscribeTwitch: SubscribeTwitch;
   // bucle para el buffer
   interval: NodeJS.Timer;
+  sourcesReads: string[] = [];
   constructor(SubscribeTwitch: SubscribeTwitch) {
     super();
     this.SubscribeTwitch = SubscribeTwitch;
@@ -26,8 +29,20 @@ export class TwitchPlaysController extends HttpController {
 
   start: FunctionRouter = (req, res) => {
     try {
-      if (this.enable) throw new Error("El servidor ya se encuentra inicializado");
-      this.SubscribeTwitch.listenMessage(this.HandleGetMessage);
+      if (this.enable) {
+        this.bufferMessages = [];;
+        this.messages = [];
+        this.json(res, { error: false, message: 'El servidor ya se encuentra inicializado' });
+        return;
+      };
+
+      // verificamos que solo una vez se subscriba a los mensajes
+      if (!this.connected) {
+        this.SubscribeTwitch.listenMessage(this.HandleGetMessage);
+        terminal.server('start twitch-plays successfully');
+      }
+      this.connected = true;
+
       this.bufferMessages = [];;
       this.messages = [];
       this.enable = true;
@@ -46,11 +61,29 @@ export class TwitchPlaysController extends HttpController {
         // this.messages.push(this.bufferMessages);
         // this.bufferMessages = [];
       }, this.timeBuffer * 1000);
-      terminal.server('start twitch-plays successfully');
       this.json(res, { error: false, message: 'twitch-plays inicializado correctamente' });
     } catch (error: any) {
       terminal.server(error.message);
       this.json(res, { error: true, message: error.message, messages: [] });
+    }
+  }
+
+  getRandomFile: FunctionRouter = (req, res) => {
+    try {
+      const folder = fs.readdirSync('src/public/her-story/').filter(e => !this.sourcesReads.includes(e));
+      if (!folder.length) throw new Error("No hay mas retos");
+      let link = '';
+      const position = Number.parseInt(String(Math.random() * folder.length));
+      const source = folder[position];
+      this.sourcesReads.push(source);
+
+      if (source.includes('.music')) {
+        link = fs.readFileSync(`src/public/her-story/${source}`, { encoding: 'utf-8' });
+      }
+
+      this.json(res, { source, format: source.includes('.music') ? 'music' : 'image', name: source.split('.')[0], link });
+    } catch (error: any) {
+      this.json(res, { error: true, message: error.message, source: null, format: null });
     }
   }
 
@@ -60,7 +93,7 @@ export class TwitchPlaysController extends HttpController {
       const messagesSet = new Set(messages);
       const body = [...messagesSet].map((message) => ({
         message,
-        counter: messages.filter(msg => msg === message).length
+        counter: messages.filter(msg => msg == message).length
       })).sort((a, b) => b.counter > a.counter ? 1 : -1).slice(0, 25);
       this.json(res, { error: false, messages: body });
     } catch (error: any) {

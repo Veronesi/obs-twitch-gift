@@ -30,13 +30,16 @@ export class Application extends Router {
 
   readFileFile(res: http.ServerResponse<http.IncomingMessage>, file: string) {
     try {
-      var s = fs.createReadStream('src/' + file);
+      if (!fs.existsSync(decodeURI('src' + file))) {
+        throw new Error("File not exist");
+      }
+      var s = fs.createReadStream(decodeURI('src' + file));
       s.on('open', function () {
         res.setHeader('Content-Type', 'image/png');
         s.pipe(res);
       });
     } catch (e) {
-
+      console.log(e);
     }
   }
 

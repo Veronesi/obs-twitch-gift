@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
+  <title>Baity OS 1.0</title>
   <style>
     * {
       font-family: monospace;
@@ -12,6 +12,53 @@
       padding: 0;
       font-smooth: never;
       -webkit-font-smoothing: none;
+    }
+
+    .window-button {
+      color: #000;
+      background-color: silver;
+      position: relative;
+      /* z-index: 10; */
+      float: right;
+      display: block;
+      -moz-appearance: none;
+      appearance: none;
+      font-weight: 700;
+      letter-spacing: .05em;
+      padding: .45em .75em;
+      border-left: 2px solid #ededed;
+      border-top: 2px solid #ededed;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      cursor: pointer;
+      top: 2px;
+    }
+
+    .window-option {
+      background-color: #c6c6c6;
+
+      >span {
+        cursor: pointer;
+        padding: 0 5px;
+      }
+    }
+
+    .highlight {
+      color: yellow;
+      font-weight: bold;
+    }
+
+    .herstory-message {
+      display: grid;
+      color: white;
+      grid-template-columns: auto 1fr auto;
+      margin-top: 5px;
+
+      div {
+        border-bottom: dotted 1px white;
+        height: 50%;
+        margin: 0 10px;
+      }
     }
 
     #dropkey-history p {
@@ -129,6 +176,18 @@
         border-bottom: 1px solid silver;
         background: navy;
         cursor: move;
+
+        >img {
+          top: 3px;
+          left: 5px;
+          position: absolute;
+        }
+
+        >span {
+          margin-left: 24px;
+        }
+
+
       }
     }
 
@@ -425,20 +484,34 @@
     }
 
 
-    #window-her-story {
+    .window-her-story {
       background-color: #1e4a46;
 
       .chat {
+        position: relative;
         margin: 1em;
         box-shadow: 15px 12px 0px 2px rgba(0, 0, 0, 0.29);
         background: rgb(47, 47, 108);
         background: linear-gradient(180deg, rgba(47, 47, 108, 1) 0%, rgba(31, 34, 85, 1) 50%, rgba(9, 9, 36, 1) 86%);
         width: 30em;
-        height: 500px;
         display: grid;
         justify-content: stretch;
         align-items: stretch;
         padding: 1em;
+
+        .header {
+          top: 13px;
+          width: 280px;
+          transform: translateX(-50%);
+          right: 50%;
+          left: 50%;
+          opacity: 0.9;
+          margin-top: -0.5em;
+          background-color: #6b77af;
+          text-align: center;
+          color: #cecdd4;
+          position: absolute;
+        }
 
         .border {
           display: flex;
@@ -450,13 +523,7 @@
           border: solid 3px #39426a;
           padding: 0 1em;
 
-          .header {
-            opacity: 0.9;
-            margin-top: -0.5em;
-            background-color: #6b77af;
-            text-align: center;
-            color: #cecdd4;
-          }
+
 
           .btn {
             color: #e1e4e7;
@@ -553,16 +620,9 @@
 
 <body>
   <section id="desktop">
-    <article id="her-story">
-      <img width=" 50" height="50" src="public/ms_dos-1.png" alt="">
-      <span>Her Story.exe</span>
-    </article>
-    <article id="recycle-bin">
-      <img width="50" height="50" src="public/recycle_bin_full-0.png" alt="">
-      <span>Recycle Bin</span>
-    </article>
-    <span style="position: absolute;bottom: 20px;right: 50px;width: 100px;">Baity OS 1.0</span>
-    <span style="color: #ffffff77;position: absolute;bottom: 0px;right: 6px;width: 190px;">Ve a configuración para
+    <span style="cursor: pointer;position: absolute;bottom: 20px;right: 50px;width: 100px;">Baity OS 1.0</span>
+    <span style="cursor: pointer;color: #ffffff77;position: absolute;bottom: 0px;right: 6px;width: 190px;">Ve a
+      configuración para
       activar BaityOS</span>
   </section>
   <footer id="nav">
@@ -570,99 +630,11 @@
       style="min-width: 0;width: 59px; align-items: center; display: flex; margin-right: 6px; margin-bottom: 0; margin-top: 0; min-height: 16px; align-self: center;">
       <div class="btn-start"></div>
     </a>
-    <span id="nav-her-story" class="d-none" style="position: relative;">
-      <img style="position: absolute; top: 5px" width=" 15" height="15" src="public/ms_dos-1.png" alt="">
-      <span style="margin-left: 20px;">Her Story</span>
-    </span>
-    <span id="nav-papelera" class="d-none" style="position: relative;">
-      <img style="position: absolute; top: 5px" width=" 15" height="15" src="public/recycle_bin_full-0.png" alt="">
-      <span style="margin-left: 20px;">Recycle Bin</span>
-    </span>
   </footer>
-  <div id="window-her-story" class="window d-none">
-    <div class="window-header">
-      <img width=" 13" height="13" src="public/ms_dos-1.png" alt="">
-      <span>Her Story.exe</span>
-      <button id="close-her-story" class="window-button"
-        style="padding:0; height:16px;width:16px;position:relative;margin-left: 3px;">
-        <img src="public/close-icon.png" style="position:absolute;left:1px;top:0px;" />
-      </button>
-      <button id="maximize-her-story" class="window-button"
-        style="padding:0; height:16px;width:16px;position:relative;">
-        <div style="margin-left: 1px; margin-top: -1px; border: solid 2px black; width: 6px; height: 6px;"></div>
-      </button>
-      <button id="minimize-her-story" class="window-button"
-        style="padding:0; height:16px;width:16px;position:relative;">
-        <div style="border-bottom: solid 2px black; width: 10px; padding-top: 6px;"></div>
-      </button>
-    </div>
-    <div class="window-menu">
-      <span>Limpiar Chat</span>
-      <span>Pausar</span>
-      <span>Ayuda</span>
-    </div>
-    <div style="height: calc(100% - 130px); display: flex;">
-      <div class="chat" style="height: 100%;">
-        <div class="border">
-          <header class="header">CornerStone - [ClipD142-A.MPEG]</header>
-        </div>
-      </div>
-      <div class="chat" style="height: 100%;">
-        <div class="border">
-          <header class="header">Options - [her-story.conf]</header>
-          <div style="display: flex; justify-content: space-between; margin-top: 10px;align-items: center;">
-            <span style="color: whitesmoke;">Temporizador</span>
-            <input id="her-story-inputtime" value="00:30" type="time"
-              style="background-color: #6b77c1; padding: 0 15px;" />
-            <span id="her-story-btn-empezar" class="btn">Empezar</span>
-          </div>
-          <div style="text-align: center;">
-            <span id="her-story-timer" style="font-size: 100px; color: grey;">00:00</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div id="window-papelera" class="window d-none">
-    <div class="window-header">
-      <img width=" 13" height="13" src="public/color_profile-0.png" alt="">
-      <span>Papelera (Oficinas de EA)</span>
-      <button id="close-papelera" class="window-button"
-        style="padding:0; height:16px;width:16px;position:relative;margin-left: 3px;">
-        <img src="public/close-icon.png" style="position:absolute;left:1px;top:0px;" />
-      </button>
-      <button id="minimize-papelera" class="window-button" style="padding:0; height:16px;width:16px;position:relative;">
-        <div style="border-bottom: solid 2px black; width: 10px; padding-top: 6px;"></div>
-      </button>
-    </div>
-    <div style="height: calc(100% - 29px); width: 100%;background-color: darkslategray;">
-      <div class="folder">
-        <article>
-          <img width=" 50" height="50" src="public/write_file-1.png" alt="">
-          <span>Contrato de afiliación con Bugisoft.pdf</span>
-        </article>
-        <article>
-          <img width=" 50" height="50" src="public/color_profile-0.png" alt="">
-          <span>Vacas comiendo doritos.jpg</span>
-        </article>
-        <article>
-          <img width=" 50" height="50" src="public/color_profile-0.png" alt="">
-          <span>fotos de pies.jpg</span>
-        </article>
-        <article>
-          <img width=" 50" height="50" src="public/write_file-1.png" alt="">
-          <span>Monografico de pokemon parte 3.txt</span>
-        </article>
-        <article>
-          <img width=" 50" height="50" src="public/video_-1.png" alt="">
-          <span>Mi decisión de por qué me voy a Kick.mp4</span>
-        </article>
-      </div>
-    </div>
-  </div>
 </body>
 <script>
   class Alert {
+    id;
     closeBtn;
     name;
     icon;
@@ -670,7 +642,9 @@
     offsetX;
     offsetY;
     $window;
-    constructor({ name, icon, closeBtn = false }) {
+    fnOpen = () => { };
+    constructor({ name, icon = "public/executable-0.png", closeBtn = false }) {
+      this.id = String(Math.random());
       this.closeBtn = closeBtn;
       this.name = name;
       this.icon = icon;
@@ -679,16 +653,24 @@
 
     generateWindow = () => {
       const html = `<div id="${this.id}" class="alert-loading d-none">
-          <div header="${this.id}" class="window-header">
+          <div id="${this.id}-header" class="window-header">
+            <img width="13" height="13" src="${this.icon}" alt="">
         <span>${this.name}</span>
+          ${this.closeBtn ? ` <button id="${this.id}-close" class="window-button"
+        style="padding:0; height:16px;width:16px;position:relative;margin-left: 3px;">
+        <img src="public/close-icon.png" style="position:absolute;left:1px;top:0px;" />
+      </button>` : ''}
       </div>
       <div body="${this.id}">
       </div>
   </div>`;
       document.querySelector('body').insertAdjacentHTML('beforeend', html);
       this.$window = document.getElementById(this.id);
-      this.$header = document.querySelector(`[header="${this.id}"]`);
+      this.$header = document.getElementById(`${this.id}-header`);
       this.$body = document.querySelector(`[body="${this.id}"]`);
+      if (this.closeBtn) {
+        document.getElementById(`${this.id}-close`).onclick = this.close;
+      }
       this.$header.addEventListener('mousedown', e => {
         this.isDragging = true;
         this.offsetX = e.clientX - this.$window.offsetLeft;
@@ -696,6 +678,20 @@
         document.addEventListener('mousemove', this.moveWindow);
         document.addEventListener('mouseup', this.stopDragging);
       });
+    }
+
+    moveWindow = (e) => {
+      if (this.isFull) return;
+      if (this.isDragging) {
+        this.$window.style.left = e.clientX - this.offsetX + 'px';
+        this.$window.style.top = e.clientY - this.offsetY + 'px';
+      }
+    }
+
+    stopDragging = () => {
+      this.isDragging = false;
+      document.removeEventListener('mousemove', this.moveWindow);
+      document.removeEventListener('mouseup', this.stopDragging);
     }
 
     open = () => {
@@ -728,7 +724,8 @@
     fnClose = () => { };
     $header;
     $body;
-    constructor({ name, icon, shortcurt, isOnFolder = null }) {
+    style;
+    constructor({ name, icon, shortcurt, isOnFolder = null, style = "" }) {
       this.isFull = false;
       this.isDragging = false;
       this.name = name;
@@ -736,8 +733,10 @@
       this.isOpen = false;
       this.isOnFolder = isOnFolder;
       this.shortcurt = shortcurt;
+      this.style = style;
       this.id = String(Math.random());
       this.generateWindow();
+      this.$window.setAttribute("style", this.style);
       if (this.shortcurt || this.isOnFolder) this.generateShortcut();
     }
 
@@ -774,7 +773,7 @@
     }
 
     close = () => {
-      this.$window.setAttribute("style", "");
+      this.$window.setAttribute("style", this.style);
       this.isOpen = false;
       this.$window.classList.add('d-none');
       document.querySelector(`[nav="${this.id}"`).remove();
@@ -783,7 +782,7 @@
 
     maximize = () => {
       if (this.isFull) {
-        this.$window.setAttribute("style", "");
+        this.$window.setAttribute("style", this.style);
         this.isFull = false;
         return;
       }
@@ -813,6 +812,11 @@
     }
 
     generateWindow = () => {
+      // <div class="window-option">
+      //   <span>Limpiar Chat</span>
+      //   <span>Pausar</span>
+      //   <span>Ayuda</span>
+      // </div>
       const html = `<div id="${this.id}" class="window d-none">
     <div header="${this.id}" class="window-header">
       <img width="13" height="13" src="${this.icon}" alt="">
@@ -851,7 +855,7 @@
   class FolderApplication extends Application {
     constructor({ name, icon = 'public/directory_closed-0.png', shortcurt }) {
       super({ name, icon, shortcurt });
-      this.$body.style.backgroundColor = '#018080';
+      this.$body.style.backgroundColor = '#075757';
       this.$body.innerHTML = `
         <div class="folder" style="padding: 14px;height: 100%; display: flex; width: 100%; flex-wrap: wrap;gap: 14px;align-content: flex-start; align-items: flex-start; justify-content: flex-start;">
         </div>
@@ -859,19 +863,13 @@
     }
   }
 
-  const folder = new FolderApplication({ name: "Recycle Bin", icon: "public/recycle_bin_full-0.png", shortcurt: "Recycle Bin" });
-  folder.open();
-
-  const vacasPng = new Application({ name: "Vacas comiendo doritos.jpg", icon: "public/color_profile-0.png", shortcurt: "Vacas comiendo doritos.jpg", isOnFolder: folder.$body.childNodes[1] })
-  const videoTrash = new Application({ name: "test.mp4", icon: "public/video_-1.png", shortcurt: "video.pm4", isOnFolder: folder.$body.childNodes[1] });
-  videoTrash.$body.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/1K_wJlkZ-YA?si=r-Ktehy_UgBbz2J9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
 
   class DeathScreen extends Application {
     constructor() {
       super({ name: 'Internal Server Error' });
       this.maximize();
       this.$body.innerHTML = `<div style="height: 100%;color: silver;background-color: #010180"; font-family: font-family: "Lucida Console", "Courier New", monospace !important;>
-       <div style="padding-top: 100px; margin-left: auto; margin-right: auto; width: 600px; vertical-align: middle;"> <p style="margin-bottom: 2em;">A problem has been detected and windows has been shut down to prevent damage to your computer.</p>
+       <div style="padding-top: 50px; margin-left: auto; margin-right: auto; width: 600px; vertical-align: middle;"> <p style="margin-bottom: 2em;">A problem has been detected and windows has been shut down to prevent damage to your computer.</p>
         <p style="margin-bottom: 1em;">The end-user manually generated the crashdump.</p>
         <p  style="margin-bottom: 2em;">If this is the first time you've seen this stop error screen, restart your computer. If this screen appears again, follow these steps:</p>
 <p>Check to make sure any new hardware or software is properly installed.</p>
@@ -889,8 +887,8 @@
   }
 
   class PhotoViewerApplication extends Application {
-    constructor({ name, icon = "public/color_profile-0.png", shortcurt, image }) {
-      super({ name, icon, shortcurt });
+    constructor({ name, icon = "public/color_profile-0.png", shortcurt, image, isOnFolder = null }) {
+      super({ name, icon, shortcurt, isOnFolder });
       this.$body.innerHTML = `<div
         style="background-size: contain;background-image: url(${image});height: 100%;width: 100%;background-repeat: no-repeat;background-position: center;">
       </div>`;
@@ -898,11 +896,58 @@
   }
 
   class TextEditorApplication extends Application {
-    constructor({ name, icon = "public/address_book_pad.png", shortcurt, text }) {
-      super({ name, icon, shortcurt });
-      this.$body.innerHTML = `<textarea name="text-editor" style="white-space: pre; letter-spacing: unset; line-height: 6px; transform: unset; width: calc(100% - 5px); height: 100%;">${text}</textarea>`;
+    constructor({ name, icon = "public/address_book_pad.png", shortcurt, text, isOnFolder = null, lh = 'auto', style = "" }) {
+      super({ name, icon, shortcurt, isOnFolder, style });
+      this.$body.innerHTML = `<textarea name="text-editor" style="white-space: pre; letter-spacing: unset; line-height: ${lh}; transform: unset; width: calc(100% - 5px); height: 100%;">${text}</textarea>`;
     }
   }
+
+  const folder = new FolderApplication({ name: "Recycle Bin", icon: "public/recycle_bin_full-0.png", shortcurt: "Recycle Bin" });
+  new PhotoViewerApplication({ name: "Vacas comiendo doritos.jpg", icon: "public/color_profile-0.png", shortcurt: "Vacas comiendo doritos.jpg", isOnFolder: folder.$body.childNodes[1], image: 'public/vacas.png' });
+  new PhotoViewerApplication({ name: "fotos de pies.jpg", icon: "public/color_profile-0.png", shortcurt: "fotos de pies.jpg", isOnFolder: folder.$body.childNodes[1], image: 'public/pies.png' });
+  new TextEditorApplication({ name: 'Contrato sponsor Bugisoft.pdf', shortcurt: 'Contrato sponsor Bugisoft.pdf', icon: "public/write_file-1.png", isOnFolder: folder.$body.childNodes[1] });
+  new TextEditorApplication({
+    name: 'Monografico de pokemon parte 3.txt', shortcurt: 'Monografico de pokemon parte 3.txt', icon: "public/write_file-1.png", isOnFolder: folder.$body.childNodes[1], text: `Monográfico sobre Pokémon
+1. Origen y Creación de Pokémon
+Pokémon (abreviatura de Pocket Monsters) es una franquicia creada por Satoshi Tajiri y Ken Sugimori. 
+Su origen se remonta a 1996, cuando se lanzó como un videojuego para la consola Game Boy de Nintendo. 
+Desarrollado por Game Freak y publicado por Nintendo, el concepto original fue inspirado por el interés 
+de Tajiri en coleccionar insectos cuando era niño. Este concepto fue la base de la idea principal de los 
+juegos: capturar y entrenar criaturas (Pokémon) para usarlas en batallas.
+
+2. Videojuegos
+El primer juego, Pokémon Red y Green (lanzado como Red y Blue fuera de Japón), permitió a los 
+jugadores explorar un mundo ficticio, capturar Pokémon y entrenarlos para enfrentarse a otros entrenadores.
+ El éxito del juego fue inmediato y lanzó una saga que ha perdurado más de dos décadas.
+
+Los videojuegos de Pokémon han seguido evolucionando y expandiéndose, con nuevas generaciones de
+ juegos lanzadas regularmente, cada una con nuevos Pokémon, mecánicas de juego y mejoras tecnológicas. 
+Las generaciones se suelen agrupar en base a las nuevas regiones introducidas en los juegos y los 
+Pokémon correspondientes. Hasta la fecha, se han lanzado nueve generaciones de videojuegos.
+
+Generación 1: Kanto (Pokémon Red/Blue)
+Generación 2: Johto (Pokémon Gold/Silver)
+Generación 3: Hoenn (Pokémon Ruby/Sapphire)
+Generación 4: Sinnoh (Pokémon Diamond/Pearl)
+Generación 5: Unova (Pokémon Black/White)
+Generación 6: Kalos (Pokémon X/Y)
+Generación 7: Alola (Pokémon Sun/Moon)
+Generación 8: Galar (Pokémon Sword/Shield)
+Generación 9: Paldea (Pokémon Scarlet/Violet)
+Además de los títulos principales, hay numerosos spin-offs, como Pokémon Snap, Pokémon Mystery Dungeon, Pokémon GO, y muchos más.
+
+3. Serie de Anime
+El anime de Pokémon es una de las adaptaciones más exitosas de la franquicia. Iniciado en 1997,
+sigue la historia de Ash Ketchum (Satoshi en Japón) y su fiel compañero Pikachu mientras viajan 
+por diferentes regiones del mundo Pokémon, con el objetivo de convertirse en el "Maestro Pokémon". 
+La serie ha durado más de 25 años y ha lanzado más de 1,200 episodios, además de numerosas películas y especiales.
+
+El anime ha sido crucial para popularizar la franquicia a nivel global, 
+ya que a través de la serie, muchas personas conocieron el mundo Pokémon.` })
+  const videoTrash = new Application({ name: "test.mp4", icon: "public/video_-1.png", shortcurt: "video.pm4", isOnFolder: folder.$body.childNodes[1] });
+  videoTrash.fnOpen = () => videoTrash.$body.innerHTML = `<iframe opacity="0" width="100%" height="100%" src="https://www.youtube.com/embed/1K_wJlkZ-YA?si=r-Ktehy_UgBbz2J9?rel=0&amp;controls=0&amp;showinfo=0&amp;autoplay=1&amp;loop=1&amp;playlist=1K_wJlkZ-YA" title="YouTube video player" frameborder="0" allow="autoplay;" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  videoTrash.fnClose = () => videoTrash.$body.innerHTML = '';
+  videoTrash.fnMinimize = () => videoTrash.$body.innerHTML = '';
 
   class WinnerDropKeyApplication extends Application {
     constructor({ gameImage, gameName, gameScore, gameScoreBy, winner, alternate }) {
@@ -1122,7 +1167,7 @@
   new DropKetApplicatioon();
   new PhotoViewerApplication({ name: 'TONGO.jpg - Visualizador de ...', shortcurt: 'TONGO.jpg', image: 'public/tongo.png' });
   new TextEditorApplication({
-    name: 'Leerme.txt - Notepadd', shortcurt: 'Leerme.txt', text: `@@@@@@@@@@@@@@@@@@@@@@@@#..=@@%@@::**+=-==++#*+=-=----=*%@@@=..:.-:+.=@=.-%#*%@@@@@@@@@@@@\n
+    name: 'Leerme.txt - Notepadd', style: "max-width: 780px;", lh: '6px', shortcurt: 'Leerme.txt', text: `@@@@@@@@@@@@@@@@@@@@@@@@#..=@@%@@::**+=-==++#*+=-=----=*%@@@=..:.-:+.=@=.-%#*%@@@@@@@@@@@@\n
 @@@@@@@@@@@@@@@@@@@@@@@@@%%@@- .-...:*#%%@%%%%%@#++==:.::=++:-=+==.:+=+#.+@+:#@@@@@@@@@@@@\n
 @@@@@@@@@@@@@@@@@@@@++=-#@@@#=.-+**#@@@@@@@@@@*@@@@@%@%#**+:..:.:::-%=.:+%@@@@@@@@@@@@@@@@\n
 @@@@@@@@@@@@@@@@* :=    -%#=-=@@@**@@@@@@@@%@@@@@@@@@@@@%+*@@#=:+@%*#+-= -@@@@@@@@@@@@@@@@\n
@@ -1169,103 +1214,168 @@
 @@@@@@@@@@@@@@@@@@@@@@@%@@@= .+@@%.  :-=..:-------------::*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nXd
   ` })
 
+  class HerStoryApplication extends Application {
+    interval;
+    timeout = [0, 0];
+    $btnEmpezar;
+    $inputTimer;
+    $inputHighlight;
+    $timer;
+    keywords;
+    highlight = false;
+    messages = [];
+    lifes = 10;
+    randomSource;
+    starPull = {
+      'image': 'public/4-star-pull.mp4',
+      'music': 'public/5-star-pull.mp4'
+    }
+    constructor() {
+      super({ name: "Her Story.exe", icon: 'public/ms_dos-1.png', shortcurt: 'Her Story.exe', style: "width: auto;" });
+      this.keywords = ["AFFAIR", "AVENTURA", "ARGUMENT", "DISCUSION", "ARREST", "ARRESTO", "ASK", "PREGUNTAR", "ATTIC", "ATICO", "BABY", "BEBE", "BAGS", "BOLSAS", "BAR", "BAR", "BEDROOM", "DORMITORIO", "BIRTHDAY", "CUMPLEAÑOS", "BLONDE", "RUBIA", "RUBIO", "BLOOD", "SANGRE", "BONE", "HUESO", "BROKEN", "ROTO", "BRUISE", "MORETON", "CAT FLAP", "GATERA", "CAR", "AUTO", "COCHE", "CELLAR", "SOTANO", "CHILDREN", "NIÑOS", "CLIMB", "TREPAR", "ESCALAR", "COFFEE", "CAFE", "CONFERENCE", "CONFERENCIA", "CONFESS", "CONFESAR", "COOKING", "COCINAR", "CRASH", "ACCIDENTE", "CHOQUE", "CRAZY", "LOCO LOCA", "DAD", "PAPA", "DEAD", "MUERTO", "MUERTA", "DEATH CAPS", "AMANITAS", "HONGOS VENENOSOS,", "DIANE", "DIANA", "DIARY", "DIARIO", "DIVORCE", "DIVORCIO", "DOLLHOUSE", "CASA DE MUÑECAS", "DOUG", "DOUG", "DREAMS", "SUEÑOS", "DRIVING", "CONDUCCION", "DROVE", "CONDUJE", "CONDUJO", "ELEANOR", "ELEONOR", "ELIMINATE", "ELIMINAR", "ERIC", "ERIC", "EVE", "EVA", "EXPENSE", "GASTO", "FAIRY", "HADA", "FAMILY", "FAMILIA", "FIGHT", "PELEA", "LUCHAR", "FINGERPRINTS", "HUELLAS DACTILARES", "FLORENCE", "FLORENCIA", "FRIDAY", "VIERNES", "FRIEND", "AMIGO", "AMIGA", "GIFT", "REGALO", "GLASGOW", "GLASGOW", "GLASS", "VIDRIO", "CRISTAL", "GLASSES", "GAFAS", "LENTES", "GLAZIER", "VIDRIERO", "VIDRIERA", "GONE", "DESAPARECIDO", "DESAPARECIDA", "GUITAR", "GUITARRA", "HAIR", "CABELLO", "PELO", "HANNAH", "HANNA", "HIT", "GOLPEAR", "HOUSE", "CASA", "HOTEL", "HOTEL", "HUSBAND", "ESPOSO", "ILL", "ENFERMO", "ENFERMA", "IMPORTANT", "IMPORTANTE", "INFERTILE", "INFERTIL", "INNOCENT", "INOCENTE", "KILL", "MATAR", "KNOCK CODE", "CODIGO DE GOLPETEO", "LAWYER", "ABOGADO", "ABOGADA", "LIE DETECTOR", "DETECTOR DE MENTIRAS", "LIFE", "VIDA", "LOCK", "CERRADURA", "LOVE", "AMOR", "MORNING", "MAÑANA", "MAGIC", "MAGIA", "MAGICAL", "MAGICO", "MAGICA", "MARRIED", "CASADO", "CASADA", "MARRIAGE", "MATRIMONIO", "MATCH", "CERILLO", "FOSFORO", "MIRROR", "ESPEJO", "MOTHER", "MADRE", "MURDER", "ASESINATO", "MUSHROOM", "HONGO", "SETA", "NAME", "NOMBRE", "NICE", "AGRADABLE", "NURSERY", "GUARDERIA", "PAGE", "PAGINA", "PARENTS", "PADRES", "POLICE", "POLICIA", "POISON", "VENENO", "PREGNANT", "EMBARAZADA", "PRINCE", "PRINCIPE", "PRINCESS", "PRINCESA", "PUB", "TABERNA", "BAR", "RAPUNZEL", "RAPUNZEL", "REFLECTION", "REFLEXION", "REFLEJO", "REMEMBER", "RECORDAR", "RULES", "REGLAS", "SECRET", "SECRETO", "SEVENTEEN", "DIECISIETE", "SEX", "SEXO", "SHARE", "COMPARTIR", "SIMON", "SIMON", "SING", "CANTAR", "SISTER", "HERMANA", "SLEEP", "DORMIR", "SOUND", "SONIDO", "STORY", "HISTORIA", "STREET", "CALLE", "STRONG", "FUERTE", "SUSPECT", "SOSPECHOSO. SOSPECHOSA", "SUSPICIOUS", "SOSPECHOSO", "SOSPECHOSA", "SYNC", "SINCRONIZAR", "TATTOO", "TATUAJE", "TAXI", "TAXI", "TEA", "TE", "THROAT", "GARGANTA", "THIN", "DELGADO ,DELGADA", "TICKET", "BOLETO", "TICKET", "TIN", "LATA", "TRAPPED", "ATRAPADO", "ATRAPADA", "TRY", "INTENTAR", "TWIN", "GEMELO", "GEMELA", "WATCH", "RELOJ", "MIRAR", "WEDDING", "BODA", "WEIRD", "RARO", "RARA", "WIFE", "ESPOSA", "WIG", "PELUCA", "WITCH", "BRUJA", "WOMAN", "MUJER", "KEKRO", "CARL", "DIANE", "DOMINO", "DOUG", "ELEANOR", "ERIC", "EVE", "FLORENCE", "HANNAH", "HELEN", "PETER", "SARAH", "SIMON", "VANAL"];
+      this.$body.innerHTML = `<div class="window-her-story" style="padding: 1em; height: calc(100% - 2em); display: flex;">
+      <div class="chat">
+        <div class="border" style="max-height: 100%;overflow: scroll;">
+          <div id="${this.id}-messages" class="herstory-message">
+          </div>
+        </div>
+        <header class="header">CornerStone - [ClipD142-A.MPEG]</header>
+      </div>
+      <div class="chat">
+        <div class="border">
+          <div style="display: flex; justify-content: space-between; margin-top: 10px;align-items: center;">
+            <span style="color: whitesmoke;">Temporizador</span>
+            <input id="${this.id}-input-timer" value="00:30" type="time"
+              style="background-color: #6b77c1; padding: 0 15px;" />
+            <span id="${this.id}-btn-empezar" class="btn">Empezar</span>
+          </div>
+          <div style="display: flex; justify-content: flex-start; margin-top: 10px; align-items: center; gap: 10px;">
+            <input id="${this.id}-input-highlight" type="checkbox"
+              style="background-color: #6b77c1; padding: 0 15px;" />
+            <span style="color: whitesmoke;">Resaltar palabras claves</span>
+          </div>
+          <div style="text-align: center;">
+            <span id="${this.id}-timer" style="font-size: 100px; color: grey;">00:00</span>
+            <div style="display: flex; margin-top: 5px; justify-content: space-around; align-items: center;"><span style="color: silver;"> Vidas:</span> <span class="highlight" id="${this.id}-lifes">${this.lifes}/10</span><span id="${this.id}-btn-gacha" class="btn">Expendedor de vida</span></div>
+            <div id="${this.id}-pull-animation-container" style="margin-top: 10px; width: 100%;position: relative;">
+            </div>
+          </div>
+        </div>
+         <header class="header">Options - [her-story.conf]</header>
+      </div>
+    </div>`;
+      this.$btnEmpezar = document.getElementById(`${this.id}-btn-empezar`);
+      this.$inputTimer = document.getElementById(`${this.id}-input-timer`);
+      this.$inputHighlight = document.getElementById(`${this.id}-input-highlight`);
+      this.$timer = document.getElementById(`${this.id}-timer`);
 
-  // Her Story
-  const $herStory = document.querySelector('#her-story');
-  const $windowHerStory = document.querySelector('#window-her-story');
-  const $closeHerStory = document.querySelector('#close-her-story');
-  const $minimizeHerStory = document.querySelector('#minimize-her-story');
-  const $maximizeHerStory = document.querySelector("#maximize-her-story");
-  const $navHerStory = document.querySelector('#nav-her-story');
+      document.getElementById(`${this.id}-btn-gacha`).onclick = async () => {
+        const { error, message, source, format, link, name } = await fetch('/twitch-plays/random-file')
+          .then(res => res.json());
 
-  const $HerStroryinputTimer = document.querySelector('#her-story-inputtime');
-  const $HerStrorybtnEmpezar = document.querySelector('#her-story-btn-empezar');
-  const $HerStroryTimer = document.querySelector('#her-story-timer');
-  let interval = null;
-  let herstoryTime = [0, 0];
+        if (error) return;
 
-  $HerStrorybtnEmpezar.onclick = () => {
-    herstoryTime = $HerStroryinputTimer.value.split(':').map(e => +e);
-    $HerStroryTimer.style.color = 'whitesmoke';
-    $HerStroryTimer.innerHTML = `${String(herstoryTime[0]).padStart(2, 0)}:${String(herstoryTime[1]).padStart(2, 0)}`;
-    interval = setInterval(() => {
-      if (!herstoryTime[0] && !herstoryTime[1]) {
-        $HerStroryTimer.style.color = 'grey';
-        clearInterval(interval);
-        return;
+        this.randomSource = name;
+
+        document.getElementById(`${this.id}-pull-animation-container`).innerHTML = `
+          <video style="opacity: 0.7" id="${this.id}-pull-animation" width="320" height="150" autoplay muted >
+            <source src="${this.starPull[format]}" type="video/mp4">
+          </video>`;
+
+        document.getElementById(`${this.id}-pull-animation`).addEventListener('ended', () => {
+          if (format == 'music') {
+            document.getElementById(`${this.id}-pull-animation-container`).innerHTML = `
+          <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; color: silver; gap: 5px;">
+            <img style="margin-top: 20px;" src="public/midi_bl-1.png" />
+            <span>Sonido.mp3</span>
+            <span id="${this.id}-btn-gacha-revelar" class="btn">Revelar</span>
+          </div>
+          <iframe style="opacity: 0" width="0" height="0" src="https://www.youtube.com/embed/${link}?autoplay=1" allow="autoplay" frameborder="0"></iframe>`;
+          } else {
+            document.getElementById(`${this.id}-pull-animation-container`).innerHTML = `
+          <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; color: silver; gap: 5px;">
+            <img style="margin-top: 20px;" src="public/color_profile-0.png" />
+            <span>Imagen.png</span>
+            <span id="${this.id}-btn-gacha-revelar" class="btn">Revelar</span>
+          </div>
+           <img id="${this.id}-image-random" src="public/her-story/${source}" style="height: 100px; width: auto; cursor:pointer" />`;
+
+            document.getElementById(`${this.id}-image-random`).onclick = () => {
+              const alert = new PhotoViewerApplication({ name: 'Illoooo que es fácil', image: `public/her-story/${encodeURI(source)}` });
+              alert.open();
+            }
+          }
+
+          document.getElementById(`${this.id}-btn-gacha-revelar`).onclick = () => {
+            document.getElementById(`${this.id}-pull-animation-container`).innerHTML = '';
+            const alert = new Alert({ name: 'Facilito', closeBtn: true });
+            alert.$body.style.height = 'calc(100% - 20px)';
+            alert.$body.innerHTML = `
+            <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
+              <span style="font-size: 20px;">${this.randomSource}</span>
+              <span class="window-button" id="${alert.id}-sumar-vida">Sumar vida</span>
+            </div>`;
+            alert.open();
+
+            document.getElementById(`${alert.id}-sumar-vida`).onclick = () => {
+              this.lifes += 1;
+              document.getElementById(`${this.id}-lifes`).innerText = `${this.lifes}/10`;
+              alert.close();
+            }
+          }
+        }, false);
+      };
+
+      this.$inputHighlight.onclick = () => {
+        document.getElementById(`${this.id}-messages`).innerHTML = this.messages.reduce((acc, e, k) => `${acc}<span class="${this.$inputHighlight.checked && this.keywords.includes(e.message) && k < 3 ? 'highlight' : ''}">${e.message}</span><div></div><span>${e.counter}</span>`, '')
       }
-      if (herstoryTime[1] > 0) {
-        herstoryTime[1] = herstoryTime[1] - 1;
-      } else {
-        herstoryTime[0] = herstoryTime[0] - 1;
-        herstoryTime[1] = 59;
+
+      this.$btnEmpezar.onclick = () => {
+        if (this.interval) {
+          this.$timer.innerHTML = '00:00';
+          this.$timer.style.color = 'grey';
+          clearInterval(this.interval);
+          this.interval = null;
+          fetch('/twitch-plays/stop');
+          this.$btnEmpezar.innerText = "Empezar";
+          return;
+        }
+        this.$btnEmpezar.innerText = "Parar";
+        fetch('/twitch-plays/start');
+        this.timeout = this.$inputTimer.value.split(':').map(e => +e);
+        this.$timer.style.color = 'whitesmoke';
+        this.$timer.innerHTML = `${String(this.timeout[0]).padStart(2, 0)}:${String(this.timeout[1]).padStart(2, 0)}`;
+        this.interval = setInterval(() => {
+          fetch('/twitch-plays/get-messages')
+            .then(res => res.json())
+            .then(res => {
+              this.messages = res.messages;
+              document.getElementById(`${this.id}-messages`).innerHTML = res.messages.reduce((acc, e, k) => `${acc}<span class="${this.$inputHighlight.checked && this.keywords.includes(e.message) && k < 3 ? 'highlight' : ''}">${e.message}</span><div></div><span>${e.counter}</span>`, '')
+            });
+          if (!this.timeout[0] && !this.timeout[1]) {
+            this.$btnEmpezar.innerText = "Empezar";
+            this.$timer.style.color = 'grey';
+            clearInterval(this.interval);
+            this.interval = null;
+            this.lifes--;
+            document.getElementById(`${this.id}-lifes`).innerText = `${this.lifes}/10`;
+
+            fetch('/twitch-plays/stop');
+            return;
+          }
+          if (this.timeout[1] > 0) {
+            this.timeout[1] = this.timeout[1] - 1;
+          } else {
+            this.timeout[0] = this.timeout[0] - 1;
+            this.timeout[1] = 59;
+          }
+          this.$timer.innerHTML = `${String(this.timeout[0]).padStart(2, 0)}:${String(this.timeout[1]).padStart(2, 0)}`;
+        }, 1000);
       }
-      $HerStroryTimer.innerHTML = `${String(herstoryTime[0]).padStart(2, 0)}:${String(herstoryTime[1]).padStart(2, 0)}`;
-    }, 1000);
+    }
   }
 
-
-  $herStory.onclick = () => {
-    $windowHerStory.classList.remove('full');
-    $windowHerStory.classList.remove('d-none');
-    $navHerStory.classList.remove('d-none');
-    $navHerStory.classList.add('start-button-selected');
-  }
-
-  $closeHerStory.onclick = () => {
-    $windowHerStory.classList.add('d-none');
-    $navHerStory.classList.add('d-none');
-    $navHerStory.classList.remove('start-button-wrapper');
-  }
-
-  $minimizeHerStory.onclick = () => {
-    $windowHerStory.classList.add('d-none');
-    $navHerStory.classList.remove('start-button-selected');
-    $navHerStory.classList.add('start-button-wrapper');
-  }
-
-  $maximizeHerStory.onclick = () => {
-    $windowHerStory.classList.toggle('full');
-  }
-
-  $navHerStory.onclick = () => {
-    $windowHerStory.classList.remove('d-none');
-    $navHerStory.classList.remove('d-none');
-    $navHerStory.classList.remove('start-button-wrapper');
-    $navHerStory.classList.add('start-button-selected');
-  }
-
-  // Papelera
-  const $papelera = document.querySelector('#recycle-bin');
-  const $windowpapelera = document.querySelector('#window-papelera');
-  const $closepapelera = document.querySelector('#close-papelera');
-  const $minimizepapelera = document.querySelector('#minimize-papelera');
-  const $navpapelera = document.querySelector('#nav-papelera');
-
-  $papelera.onclick = () => {
-    $windowpapelera.classList.remove('d-none');
-    $navpapelera.classList.remove('d-none');
-    $navpapelera.classList.add('start-button-selected');
-  }
-
-  $closepapelera.onclick = () => {
-    $windowpapelera.classList.add('d-none');
-    $navpapelera.classList.add('d-none');
-    $navpapelera.classList.remove('start-button-wrapper');
-  }
-
-  $minimizepapelera.onclick = () => {
-    $windowpapelera.classList.add('d-none');
-    $navpapelera.classList.remove('start-button-selected');
-    $navpapelera.classList.add('start-button-wrapper');
-  }
-
-  $navpapelera.onclick = () => {
-    $windowpapelera.classList.remove('d-none');
-    $navpapelera.classList.remove('d-none');
-    $navpapelera.classList.remove('start-button-wrapper');
-    $navpapelera.classList.add('start-button-selected');
-  }
+  const herstory = new HerStoryApplication();
 </script>
 
 </html>

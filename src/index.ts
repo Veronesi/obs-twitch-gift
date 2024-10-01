@@ -13,7 +13,7 @@ const twitchPlaysRouter = new TwitchPlaysRouter(subscribeTwitch);
 const giftSubsRouter = new GiftSubsRouter(subscribeTwitch);
 const homeRouter = new HomeRouter();
 
-twitchRepository.connect("tarik", "fanaes", "oauth:t3tb3xahwz6px81r3bn171bnx4gq8d");
+twitchRepository.connect("caedrel", "fanaes", "oauth:t3tb3xahwz6px81r3bn171bnx4gq8d");
 subscribeTwitch.connect();
 
 app.use('twitch-plays', twitchPlaysRouter);
