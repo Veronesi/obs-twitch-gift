@@ -30,9 +30,11 @@ export class Application extends Router {
 
   readFileFile(res: http.ServerResponse<http.IncomingMessage>, file: string) {
     try {
-      if (!fs.existsSync(decodeURI('src' + file))) {
-        throw new Error("File not exist");
-      }
+      const stats = fs.statSync(decodeURI('src' + file));
+      if (stats.isDirectory()) throw new Error(`Es un directorio, no se puede leer como archivo.`);
+
+      if (!fs.existsSync(decodeURI('src' + file))) throw new Error("El archivo no existe");
+
       var s = fs.createReadStream(decodeURI('src' + file));
       s.on('open', function () {
         res.setHeader('Content-Type', 'image/png');

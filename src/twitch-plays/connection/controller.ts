@@ -71,17 +71,38 @@ export class TwitchPlaysController extends HttpController {
   getRandomFile: FunctionRouter = (req, res) => {
     try {
       const folder = fs.readdirSync('src/public/her-story/').filter(e => !this.sourcesReads.includes(e));
-      if (!folder.length) throw new Error("No hay mas retos");
+      if (!folder.length) throw new Error("No se encontraron mas retos, por favor agregar mas en la carpeta public/her-story");
       let link = '';
+      let t = '0';
       const position = Number.parseInt(String(Math.random() * folder.length));
       const source = folder[position];
       this.sourcesReads.push(source);
 
       if (source.includes('.music')) {
         link = fs.readFileSync(`src/public/her-story/${source}`, { encoding: 'utf-8' });
+
+        // verificamos si es de tipo: https://www.youtube.com/watch?v=
+        let match = link.match(/\/watch\?v\=/);
+        if (match) {
+          const [, match1] = link.split(/watch\?/);
+          const options = match1.split('&') ?? [];
+          link = options.find(e => e.includes('v='))?.replace('v=', '') ?? '';
+          t = options.find(e => e.includes('t='))?.replace('t=', '') ?? '0';
+        } else {
+          // es de tipo youtu.be
+          match = link.match(/youtu\.be\/(.*\?.*$)/);
+          if (match && match[1].includes('?')) {
+            const [_link, options] = match[1].split(/\?/);
+            link = _link;
+            t = options.split('&').find(e => e.includes('t='))?.replace('t=', '') ?? '0';
+          } else if (match) {
+            link = match[1];
+          } else {
+          }
+        }
       }
 
-      this.json(res, { source, format: source.includes('.music') ? 'music' : 'image', name: source.split('.')[0], link });
+      this.json(res, { source, format: source.includes('.music') ? 'music' : 'image', name: source.split('.')[0], link, t });
     } catch (error: any) {
       this.json(res, { error: true, message: error.message, source: null, format: null });
     }
