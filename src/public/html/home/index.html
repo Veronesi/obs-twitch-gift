@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://www.youtube.com/iframe_api"></script>
+  <script type="module" src="/public/js/socket.io.min.js"></script>
   <title>Baity OS 1.0</title>
   <style>
     * {
@@ -15,6 +16,69 @@
       font-smooth: never;
       -webkit-font-smoothing: none;
       */
+    }
+
+    .acordeon-menu {
+      position: relative;
+    }
+
+    .acordeon-menu:hover .acordeon {
+      display: flex;
+    }
+
+    .acordeon {
+      display: none;
+      left: 0;
+      padding: 5px;
+      z-index: 4;
+      flex-direction: column;
+      position: absolute;
+      width: 170px;
+      box-shadow: 5px 5px 0px 2px rgba(0, 0, 0, 0.2);
+      font-size: 12px;
+      color: #000;
+      background-color: silver;
+      float: right;
+      -moz-appearance: none;
+      appearance: none;
+      font-weight: normal;
+      padding: .45em .75em;
+      border-left: 2px solid #ededed;
+      border-top: 2px solid #ededed;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      cursor: pointer;
+      top: 16px;
+
+      span {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        padding-right: 3px;
+        padding-left: 5px;
+        display: block;
+      }
+
+      span.selected::before {
+        content: '◉ ';
+      }
+
+      span:hover {
+        background-color: #122a7a;
+        color: silver;
+      }
+
+    }
+
+    .menu-header {
+      height: 15px;
+      background-color: silver;
+    }
+
+    .dk-histroy-container>p {
+      display: flex;
+      height: 16px;
+      align-items: center;
+      gap: 10px;
     }
 
     .btn-winamp:hover {
@@ -86,9 +150,20 @@
     }
 
     .window-option {
+      height: 17px;
       background-color: #c6c6c6;
 
+      >span:hover {
+        background-color: #122a7a;
+        color: silver;
+      }
+
       >span {
+        padding: 3px 0;
+        border-top: 1px solid silver;
+        border-left: 1px solid silver;
+        border-bottom: 1px solid silver;
+        border-right: 1px solid silver;
         cursor: pointer;
         padding: 0 5px;
       }
@@ -732,9 +807,24 @@
   let player;
   let idDraged = '';
 
-  const Main = {
+  const Main = {};
 
-  };
+  window.onresize = () => {
+    // verificamos si alguna ventana queda fuera
+    const resizer = Object.keys(Main).filter(e => Main[e].isOpen && !Main[e].isFull);
+    resizer.forEach(el => {
+
+      let left = Main[el].$window.style.left.split('px')[0];
+      let top = Main[el].$window.style.top.split('px')[0];
+
+      // verificamos que no quede por debajo de la barra de tareas
+      if (top > window.innerHeight - 27) top = window.innerHeight - 27;
+      if (left > window.innerWidth - 100) left = window.innerWidth - 100;
+
+      Main[el].$window.style.left = left + 'px';
+      Main[el].$window.style.top = top + 'px';
+    })
+  }
 
   function allowDrop(ev) {
     ev.preventDefault();
@@ -835,6 +925,7 @@
   }
 
   class Application {
+    topMenu;
     isFull;
     id;
     name;
@@ -854,9 +945,11 @@
     fnClose = () => { };
     $header;
     $body;
+    $topMenu;
     style;
     className;
-    constructor({ name, icon, shortcurt, isOnFolder = null, style = "", className = "" }) {
+    constructor({ name, icon, shortcurt, isOnFolder = null, style = "", className = "", topMenu = false }) {
+      this.topMenu = topMenu;
       this.isFull = false;
       this.className = className;
       this.isDragging = false;
@@ -957,11 +1050,22 @@
 
     moveWindow = (e) => {
       if (this.isFull) return;
+      if (!this.isDragging) return;
 
-      if (this.isDragging) {
-        this.$window.style.left = e.clientX - this.offsetX + 'px';
-        this.$window.style.top = e.clientY - this.offsetY + 'px';
-      }
+      // nuevas posicion de la ventana
+      let left = e.clientX - this.offsetX;
+      let top = e.clientY - this.offsetY;
+
+      // verificamos si esta por fuerta de la pantalla
+      if (left < - this.$window.clientWidth + 100) left = - this.$window.clientWidth + 100;
+      if (top < 0) top = 0;
+
+      // verificamos que no quede por debajo de la barra de tareas
+      if (top > window.innerHeight - 27) top = window.innerHeight - 27;
+      if (left > window.innerWidth - 100) left = window.innerWidth - 100;
+
+      this.$window.style.left = left + 'px';
+      this.$window.style.top = top + 'px';
     }
 
     stopDragging = () => {
@@ -981,11 +1085,6 @@
     }
 
     generateWindow = () => {
-      // <div class="window-option">
-      //   <span>Limpiar Chat</span>
-      //   <span>Pausar</span>
-      //   <span>Ayuda</span>
-      // </div>
       const html = `<div application id="${this.id}" class="window d-none ${this.className}">
         <div id="${this.id}-resize" style="cursor: nwse-resize; position: absolute; width: 10px; height: 10px; right: 0; bottom: 0; "></div>
     <div header="${this.id}" class="window-header">
@@ -1002,7 +1101,8 @@
         <div style="border-bottom: solid 2px black; width: 10px; padding-top: 6px;"></div>
       </button>
     </div>
-    <div style="height: calc(100% - 20px); width: 100%" body="${this.id}">
+    ${this.topMenu ? `<div id="${this.id}-topmenu" class="window-option"></div>` : ''}
+    <div style="height: calc(100% - ${this.topMenu ? '37px' : '20px'}); width: 100%" body="${this.id}">
     </div>
   </div>`;
       document.querySelector('body').insertAdjacentHTML('beforeend', html);
@@ -1012,7 +1112,7 @@
       document.querySelector(`[minimize="${this.id}"]`).onclick = this.minimize;
       this.$header = document.querySelector(`[header="${this.id}"]`);
       this.$body = document.querySelector(`[body="${this.id}"]`);
-
+      if (this.topMenu) this.$topMenu = document.getElementById(`${this.id}-topmenu`);
       document.getElementById(`${this.id}-resize`).addEventListener('mousedown', e => {
         if (e.target.id != `${this.id}-resize`) return;
         this.windowsOffsetX = this.$window.offsetLeft;
@@ -1455,7 +1555,7 @@ ya que a través de la serie, muchas personas conocieron el mundo Pokémon.` })
           <div id="${this.id}-winners">
           </div>
           <p>Historial</p>
-          <div id="${this.id}-history">
+          <div class="dk-histroy-container" id="${this.id}-history">
 
           </div>
         </div>
@@ -1650,6 +1750,7 @@ ya que a través de la serie, muchas personas conocieron el mundo Pokémon.` })
   ` })
 
   class HerStoryApplication extends Application {
+    strategySelected = "RANDOM";
     interval;
     timeout = [0, 0];
     $btnEmpezar;
@@ -1666,7 +1767,7 @@ ya que a través de la serie, muchas personas conocieron el mundo Pokémon.` })
       'music': 'public/5-star-pull.mp4'
     }
     constructor() {
-      super({ name: "Her Story.exe", icon: 'public/ms_dos-1.png', shortcurt: 'Her Story.exe', style: "width: auto;", className: "window-herstory" });
+      super({ name: "Her Story.exe", icon: 'public/ms_dos-1.png', shortcurt: 'Her Story.exe', style: "width: auto;", className: "window-herstory", topMenu: true });
       this.keywords = ["AFFAIR", "AVENTURA", "ARGUMENT", "DISCUSION", "ARREST", "ARRESTO", "ASK", "PREGUNTAR", "ATTIC", "ATICO", "BABY", "BEBE", "BAGS", "BOLSAS", "BAR", "BAR", "BEDROOM", "DORMITORIO", "BIRTHDAY", "CUMPLEAÑOS", "BLONDE", "RUBIA", "RUBIO", "BLOOD", "SANGRE", "BONE", "HUESO", "BROKEN", "ROTO", "BRUISE", "MORETON", "CAT FLAP", "GATERA", "CAR", "AUTO", "COCHE", "CELLAR", "SOTANO", "CHILDREN", "NIÑOS", "CLIMB", "TREPAR", "ESCALAR", "COFFEE", "CAFE", "CONFERENCE", "CONFERENCIA", "CONFESS", "CONFESAR", "COOKING", "COCINAR", "CRASH", "ACCIDENTE", "CHOQUE", "CRAZY", "LOCO LOCA", "DAD", "PAPA", "DEAD", "MUERTO", "MUERTA", "DEATH CAPS", "AMANITAS", "HONGOS VENENOSOS,", "DIANE", "DIANA", "DIARY", "DIARIO", "DIVORCE", "DIVORCIO", "DOLLHOUSE", "CASA DE MUÑECAS", "DOUG", "DOUG", "DREAMS", "SUEÑOS", "DRIVING", "CONDUCCION", "DROVE", "CONDUJE", "CONDUJO", "ELEANOR", "ELEONOR", "ELIMINATE", "ELIMINAR", "ERIC", "ERIC", "EVE", "EVA", "EXPENSE", "GASTO", "FAIRY", "HADA", "FAMILY", "FAMILIA", "FIGHT", "PELEA", "LUCHAR", "FINGERPRINTS", "HUELLAS DACTILARES", "FLORENCE", "FLORENCIA", "FRIDAY", "VIERNES", "FRIEND", "AMIGO", "AMIGA", "GIFT", "REGALO", "GLASGOW", "GLASGOW", "GLASS", "VIDRIO", "CRISTAL", "GLASSES", "GAFAS", "LENTES", "GLAZIER", "VIDRIERO", "VIDRIERA", "GONE", "DESAPARECIDO", "DESAPARECIDA", "GUITAR", "GUITARRA", "HAIR", "CABELLO", "PELO", "HANNAH", "HANNA", "HIT", "GOLPEAR", "HOUSE", "CASA", "HOTEL", "HOTEL", "HUSBAND", "ESPOSO", "ILL", "ENFERMO", "ENFERMA", "IMPORTANT", "IMPORTANTE", "INFERTILE", "INFERTIL", "INNOCENT", "INOCENTE", "KILL", "MATAR", "KNOCK CODE", "CODIGO DE GOLPETEO", "LAWYER", "ABOGADO", "ABOGADA", "LIE DETECTOR", "DETECTOR DE MENTIRAS", "LIFE", "VIDA", "LOCK", "CERRADURA", "LOVE", "AMOR", "MORNING", "MAÑANA", "MAGIC", "MAGIA", "MAGICAL", "MAGICO", "MAGICA", "MARRIED", "CASADO", "CASADA", "MARRIAGE", "MATRIMONIO", "MATCH", "CERILLO", "FOSFORO", "MIRROR", "ESPEJO", "MOTHER", "MADRE", "MURDER", "ASESINATO", "MUSHROOM", "HONGO", "SETA", "NAME", "NOMBRE", "NICE", "AGRADABLE", "NURSERY", "GUARDERIA", "PAGE", "PAGINA", "PARENTS", "PADRES", "POLICE", "POLICIA", "POISON", "VENENO", "PREGNANT", "EMBARAZADA", "PRINCE", "PRINCIPE", "PRINCESS", "PRINCESA", "PUB", "TABERNA", "BAR", "RAPUNZEL", "RAPUNZEL", "REFLECTION", "REFLEXION", "REFLEJO", "REMEMBER", "RECORDAR", "RULES", "REGLAS", "SECRET", "SECRETO", "SEVENTEEN", "DIECISIETE", "SEX", "SEXO", "SHARE", "COMPARTIR", "SIMON", "SIMON", "SING", "CANTAR", "SISTER", "HERMANA", "SLEEP", "DORMIR", "SOUND", "SONIDO", "STORY", "HISTORIA", "STREET", "CALLE", "STRONG", "FUERTE", "SUSPECT", "SOSPECHOSO. SOSPECHOSA", "SUSPICIOUS", "SOSPECHOSO", "SOSPECHOSA", "SYNC", "SINCRONIZAR", "TATTOO", "TATUAJE", "TAXI", "TAXI", "TEA", "TE", "THROAT", "GARGANTA", "THIN", "DELGADO ,DELGADA", "TICKET", "BOLETO", "TICKET", "TIN", "LATA", "TRAPPED", "ATRAPADO", "ATRAPADA", "TRY", "INTENTAR", "TWIN", "GEMELO", "GEMELA", "WATCH", "RELOJ", "MIRAR", "WEDDING", "BODA", "WEIRD", "RARO", "RARA", "WIFE", "ESPOSA", "WIG", "PELUCA", "WITCH", "BRUJA", "WOMAN", "MUJER", "KEKRO", "CARL", "DIANE", "DOMINO", "DOUG", "ELEANOR", "ERIC", "EVE", "FLORENCE", "HANNAH", "HELEN", "PETER", "SARAH", "SIMON", "VANAL"];
       this.$body.innerHTML = `<div class="window-her-story" style="padding: 1em; height: calc(100% - 2em); display: flex;">
       <div class="chat">
@@ -1704,6 +1805,53 @@ ya que a través de la serie, muchas personas conocieron el mundo Pokémon.` })
          <header class="header">Options - [her-story.conf]</header>
       </div>
     </div>`;
+
+
+      this.$topMenu.innerHTML = `
+        <span>
+          Limpiar Chat
+          </span>
+        <span class="acordeon-menu" menu="${this.id}-ganar-vida">
+          Jugadores
+          <div class="acordeon">
+            <span option="RANDOM" menu="${this.id}-ganar-vida-submenu" class="selected">Todos</span>
+            <span option="SUBS" menu="${this.id}-ganar-vida-submenu">Subscriptores</span>
+            <span option="WIN_MOST_POPULAR" menu="${this.id}-ganar-vida-submenu">Palabra ganadora</span>
+            <span option="WIN_ACCEPTABLE" menu="${this.id}-ganar-vida-submenu">Palabra válida</span>
+          </div>
+          </span>
+        <span>Ayuda</span>
+    `;
+
+      document.querySelectorAll(`[menu="${this.id}-ganar-vida-submenu"]`)
+        .forEach(el => {
+          el.onclick = () => {
+            this.strategySelected = el.getAttribute('option');
+            document.querySelectorAll(`[menu="${this.id}-ganar-vida-submenu"]`).forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            fetch('/twitch-plays/select-strategy', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'Application/json'
+              },
+              body: JSON.stringify({ strategy: this.strategySelected })
+            })
+            document.querySelector((`[menu="${this.id}-ganar-vida"]`)).classList.add('d-none');
+            setTimeout(() => {
+              document.querySelector((`[menu="${this.id}-ganar-vida"]`)).classList.remove('d-none');
+            }, 0);
+          }
+        });
+
+      // const $menuGanarVida = document.querySelector(`[menu="${this.id}-ganar-vida"]`);
+      // $menuGanarVida.addEventListener('mouseenter', () => {
+      //   $menuGanarVida.classList.add('open');
+      // })
+
+      // $menuGanarVida.addEventListener('mouseover', () => {
+      //   $menuGanarVida.classList.remove('open');
+      // })
+
       document.getElementById(`${this.id}-substractlife`).onclick = () => {
         this.lifes -= 1;
         document.getElementById(`${this.id}-lifes`).innerText = `${this.lifes}/10`;
@@ -1719,6 +1867,7 @@ ya que a través de la serie, muchas personas conocieron el mundo Pokémon.` })
       this.$timer = document.getElementById(`${this.id}-timer`);
 
       document.getElementById(`${this.id}-btn-gacha`).onclick = async () => {
+        fetch('/twitch-plays/select-participants', { method: 'POST' }).then(res => res.json()).then(res => console.log(res));
         const { error, message, source, format, link, name, t } = await fetch('/twitch-plays/random-file')
           .then(res => res.json());
 

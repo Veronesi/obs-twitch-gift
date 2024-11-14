@@ -37,7 +37,11 @@ export class Application extends Router {
 
       var s = fs.createReadStream(decodeURI('src' + file));
       s.on('open', function () {
-        res.setHeader('Content-Type', 'image/png');
+        if (file.match(/.js$/) || file.match(/.js.map$/)) {
+          res.setHeader('Content-Type', 'text/javascript');
+        } else {
+          res.setHeader('Content-Type', 'image/png');
+        }
         s.pipe(res);
       });
     } catch (e) {
@@ -47,6 +51,7 @@ export class Application extends Router {
 
   requestManager: FunctionRouter = (req, res) => {
     try {
+      req.body = {};
       if (!req.url) throw new Error("url not found");
       if (req.url.startsWith('/public')) {
         this.readFileFile(res, req.url);
@@ -54,6 +59,27 @@ export class Application extends Router {
       }
 
       const handler = this.routes.get(req.url);
+      if (!handler) throw new Error("path not exist");
+
+      if (req.method === "POST") {
+        let body = '';
+        req.on('data', chunk => {
+          body += chunk.toString();
+        });
+
+        req.on('end', () => {
+          try {
+            // Intentar parsear el body como JSON si es necesario
+            const parsedBody = JSON.parse(body);
+            req.body = parsedBody;
+          } catch (error) {
+            req.body = {};
+          }
+
+          handler(req, res);
+        });
+        return;
+      }
       if (!handler) throw new Error("path not exist");
       handler(req, res);
     } catch (error: any) {

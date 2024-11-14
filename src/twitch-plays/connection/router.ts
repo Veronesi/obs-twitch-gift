@@ -14,5 +14,7 @@ export class TwitchPlaysRouter extends Router {
     this.get('', controller.renderHome);
     this.get('her-story', controller.renderHerStory);
     this.get('random-file', controller.getRandomFile);
+    this.post('select-strategy', controller.selectStrategy);
+    this.post('select-participants', controller.selectParticipants);
   }
 }

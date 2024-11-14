@@ -11,7 +11,7 @@ export class TwitchTmiRepository extends TwitchRepository {
         options: { debug: false },
         connection: {
           secure: true,
-          reconnect: true,
+          reconnect: false,
         },
         identity: {
           username,
@@ -20,6 +20,7 @@ export class TwitchTmiRepository extends TwitchRepository {
         channels: [channel],
       });
       await this.client.connect();
+      terminal.twitch(`${channel} connected!`)
     } catch (error: any) {
       terminal.twitch(error);
     }
