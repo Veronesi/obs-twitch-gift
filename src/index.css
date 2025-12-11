@@ -1,0 +1,80 @@
+:root {
+  --speed: 0.8s;
+  --speed-top: 0.3s;
+  --speed-bottom: 0.3s;
+}
+
+body {
+  background: #333;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.container-glitch {
+  width: 192px;
+  height: 148px;
+  position: relative;
+  animation: glitch var(--speed) infinite;
+}
+.glitch {
+  width: 192px;
+  height: 148px;
+  position: absolute;
+  background: url("../client/assets/kadabra.gif");
+  image-rendering: pixelated;
+  background-size: cover;
+  filter: drop-shadow(2px 0 #ff00c166) drop-shadow(-2px -0 #00f4ff66);
+  &:nth-child(2) {
+    filter: drop-shadow(2px 0 red);
+    opacity: 0.7;
+    left: 4px;
+    animation: glitch-top var(--speed-top) infinite;
+  }
+  &:nth-child(3) {
+    filter: drop-shadow(-2px 0 blue);
+    opacity: 0.7;
+    left: -4px;
+    animation: glitch-bottom var(--speed-bottom) infinite;
+  }
+}
+
+@keyframes glitch {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  20%,
+  60% {
+    transform: translate(-2px, 2px);
+  }
+  40%,
+  80% {
+    transform: translate(2px, -2px);
+  }
+}
+
+@keyframes glitch-top {
+  0%,
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 25%, 0 25%);
+    transform: translate(1px, 1px);
+  }
+  50% {
+    clip-path: polygon(0 50%, 100% 50%, 100% 75%, 0 75%);
+    transform: translate(-1px, -1px);
+  }
+}
+
+@keyframes glitch-bottom {
+  0%,
+  100% {
+    clip-path: polygon(0 50%, 100% 50%, 100% 75%, 0 75%);
+    transform: translate(-1px, -1px);
+  }
+  50% {
+    clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+    transform: translate(1px, 1px);
+  }
+}
